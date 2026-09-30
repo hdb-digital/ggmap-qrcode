@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HDBank · Tạo mã QR Google Maps</title>
+<meta name="robots" content="noindex">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f6f5f2; --panel: #ffffff; --ink: #151515; --ink2: #55534e; --muted: #8a8780;
+  --line: #e2e0da; --field: #ffffff; --focus: #1c5cab; --warn-bg: #fff6e0; --warn-ink: #7a5200;
+  --err-bg: #fdeceb; --err-ink: #9b1c1c; --brand: #c8102e; --btn: #151515; --btn-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0f0f0e; --panel: #1a1a19; --ink: #f4f4f2; --ink2: #c3c2b7; --muted: #8a8780;
+    --line: #34332f; --field: #121211; --focus: #86b6ef; --warn-bg: #3a2e10; --warn-ink: #f5cf7a;
+    --err-bg: #3d1716; --err-ink: #f2a3a0; --btn: #f4f4f2; --btn-ink: #151515;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header.top { background: var(--panel); border-top: 4px solid var(--brand); border-bottom: 1px solid var(--line); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; }
+header.top .wrap { padding-block: 16px; }
+h1 { margin: 0; font-size: 19px; font-weight: 650; }
+.sub { color: var(--ink2); font-size: 13px; margin-top: 2px; }
+.layout { display: grid; grid-template-columns: minmax(300px, 390px) 1fr; gap: 16px; padding-block: 16px 40px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.panel + .panel { margin-top: 12px; }
+.panel h2 { font-size: 14px; margin: 0 0 10px; font-weight: 650; display: flex; gap: 8px; align-items: center; }
+.panel h2 .n { width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
+label.f { display: block; font-size: 12.5px; color: var(--ink2); margin-top: 10px; }
+label.f:first-of-type { margin-top: 0; }
+input[type=text], input[type=url], select, textarea {
+  width: 100%; margin-top: 4px; font: inherit; color: var(--ink); background: var(--field);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+textarea { resize: vertical; min-height: 56px; }
+input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.check { display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
+.msg { font-size: 12.5px; border-radius: 8px; padding: 8px 10px; margin-top: 8px; }
+.msg.warn { background: var(--warn-bg); color: var(--warn-ink); }
+.msg.err { background: var(--err-bg); color: var(--err-ink); }
+.hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+a { color: var(--focus); }
+.tpls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tpl { border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; cursor: pointer; background: var(--field); font: inherit; color: var(--ink); }
+.tpl[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; font-weight: 600; }
+.tpl svg { display: block; margin: 0 auto 6px; }
+.tpl small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.btn { font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--field); color: var(--ink); }
+.btn.primary { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); grid-column: 1 / -1; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.preview { position: sticky; top: 12px; }
+.stage { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; place-items: center; min-height: 420px; }
+.paper { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 28px rgba(0,0,0,.12); line-height: 0; }
+.paper svg { display: block; width: 100%; height: auto; }
+.cap { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: center; }
+#printArea { display: none; }
+@media print {
+  body > *:not(#printArea) { display: none !important; }
+  #printArea { display: block !important; }
+  #printArea svg { display: block; }
+}
+</style>
+<style id="pageSize"></style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>Tạo mã QR Google Maps cho chi nhánh / PGD</h1>
+    <div class="sub">Chọn địa điểm → kiểm tra nội dung → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</div>
+  </div>
+</header>
+
+<main class="wrap layout">
+  <div>
+    <section class="panel">
+      <h2><span class="n">1</span>Chọn địa điểm</h2>
+      <label class="f">Vùng (tỉnh/thành phố)
+        <select id="region"><option value="">Tất cả vùng</option></select>
+      </label>
+      <label class="f">Chi nhánh / Phòng giao dịch
+        <select id="branch"></select>
+      </label>
+      <div class="hint">Không có trong danh sách? Chọn “✎ Tự điền thông tin khác”.</div>
+    </section>
+
+    <section class="panel">
+      <h2><span class="n">2</span>Nội dung trên thiết kế</h2>
+      <label class="f">Tên đơn vị kinh doanh
+        <input type="text" id="name" maxlength="80" placeholder="VD: Phòng giao dịch Bảo Lộc">
+      </label>
+      <label class="f">Địa chỉ
+        <textarea id="addr" maxlength="200" rows="2"></textarea>
+      </label>
+      <label class="check"><input type="checkbox" id="showAddr" checked> Hiển thị địa chỉ trên thiết kế</label>
+      <label class="f">Link Google Maps (mã QR sẽ dẫn tới link này)
+        <input type="url" id="url" placeholder="https://maps.app.goo.gl/…" inputmode="url">
+      </label>
+      <div id="urlMsg"></div>
+      <div class="hint">Lấy link: mở địa điểm trên Google Maps → <b>Chia sẻ</b> → <b>Sao chép đường liên kết</b>.
+        <a id="openUrl" href="#" target="_blank" rel="noopener" hidden>Mở link để kiểm tra ↗</a></div>
+      <label class="f">Lời kêu gọi
+        <select id="ctaPreset">
+          <option value="review">Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps</option>
+          <option value="direction">Quét mã để tìm đường đến chúng tôi trên Google Maps</option>
+          <option value="thanks">Cảm ơn Quý khách! Quét mã để chia sẻ trải nghiệm của bạn trên Google Maps</option>
+          <option value="custom">✎ Tự nhập…</option>
+        </select>
+      </label>
+      <input type="text" id="ctaCustom" maxlength="120" placeholder="Nhập lời kêu gọi" hidden style="margin-top:6px">
+    </section>
+
+    <section class="panel">
+      <h2><span class="n">3</span>Mẫu thiết kế & xuất file</h2>
+      <div class="tpls" id="tpls"></div>
+      <label class="f" style="margin-top:14px">Logo chính thức (tùy chọn, PNG/SVG/JPG)
+        <input type="file" id="logo" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="margin-top:4px">
+      </label>
+      <div class="hint">Không có logo thì thiết kế dùng chữ “HDBank”. Logo chỉ được xử lý trên máy bạn, không tải lên đâu cả.
+        <a href="#" id="clearLogo" hidden>Bỏ logo</a></div>
+      <div class="btns">
+        <button class="btn primary" id="dlPng" type="button">Tải PNG để in (300 dpi)</button>
+        <button class="btn" id="dlSvg" type="button">Tải SVG</button>
+        <button class="btn" id="print" type="button">In / Lưu PDF</button>
+      </div>
+      <div class="hint">Luôn quét thử mã QR bằng điện thoại trước khi in hàng loạt.</div>
+    </section>
+  </div>
+
+  <div class="preview">
+    <div class="stage"><div class="paper" id="paper"></div></div>
+    <div class="cap" id="cap"></div>
+  </div>
+</main>
+<div id="printArea"></div>
+
+<script src="qrcode.min.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const SVGNS = "http://www.w3.org/2000/svg";
+const FONT = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+const RED = "#c8102e", RED_DARK = "#9e0b22", YELLOW = "#fdb913", INK = "#1a1a1a", GRAY = "#5a5a5a";
+const CTA = {
+  review: "Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps",
+  direction: "Quét mã để tìm đường đến chúng tôi trên Google Maps",
+  thanks: "Cảm ơn Quý khách! Quét mã để chia sẻ trải nghiệm của bạn trên Google Maps",
+};
+// Kích thước mm. qr = cạnh QR tối đa; các cỡ chữ tính bằng mm.
+const TEMPLATES = {
+  a5: { label: "Standee A5", size: "148 × 210 mm", w: 148, h: 210, pad: 12, header: 36, brand: 15, logoH: 20,
+        name: 8.6, nameMin: 6, addr: 3.9, qr: 86, cta: 5, stars: 6, footer: 12, footerText: 3.6 },
+  a6: { label: "Để bàn A6", size: "105 × 148 mm", w: 105, h: 148, pad: 8, header: 25, brand: 10.5, logoH: 14,
+        name: 6.2, nameMin: 4.4, addr: 2.9, qr: 60, cta: 3.7, stars: 4.4, footer: 9, footerText: 2.7 },
+  sq: { label: "Sticker vuông", size: "100 × 100 mm", w: 100, h: 100, pad: 6, header: 17, brand: 8, logoH: 10,
+        name: 4.8, nameMin: 3.4, addr: 0, qr: 50, cta: 3.1, stars: 0, footer: 0, footerText: 0 },
+};
+
+const state = { data: [], tpl: "a5", logo: null, logoRatio: 1 };
+
+/* ---------------- tiện ích ---------------- */
+function s(tag, attrs, text) {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) if (v != null) n.setAttribute(k, v);
+  if (text != null) n.textContent = text;
+  return n;
+}
+const measureCtx = document.createElement("canvas").getContext("2d");
+function textWidth(t, sizeMm, weight) {
+  measureCtx.font = `${weight} ${sizeMm * 10}px ${FONT}`;
+  return measureCtx.measureText(t).width / 10;
+}
+function wrap(text, maxW, size, weight) {
+  const words = text.trim().split(/\s+/).filter(Boolean), lines = [];
+  let cur = "";
+  for (const w of words) {
+    const t = cur ? cur + " " + w : w;
+    if (!cur || textWidth(t, size, weight) <= maxW) cur = t; else { lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+/** Thu nhỏ chữ cho tới khi vừa maxLines dòng; nếu vẫn không vừa thì cắt bớt kèm "…". */
+function fit(text, maxW, size, minSize, maxLines, weight) {
+  let sz = size, lines = wrap(text, maxW, sz, weight);
+  while ((lines.length > maxLines || lines.some(l => textWidth(l, sz, weight) > maxW)) && sz > minSize) {
+    sz = Math.max(minSize, sz - 0.2); lines = wrap(text, maxW, sz, weight);
+  }
+  if (lines.length > maxLines) { lines = lines.slice(0, maxLines); lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*\S*$/, "") + "…"; }
+  return { lines: balance(lines, maxW, sz, weight), size: sz };
+}
+/** 2 dòng → chọn điểm ngắt cho 2 dòng dài xấp xỉ nhau (tránh 1 chữ đứng lẻ ở dòng dưới). */
+function balance(lines, maxW, size, weight) {
+  if (lines.length !== 2 || lines[1].endsWith("…")) return lines;
+  const words = lines.join(" ").split(" ");
+  let best = lines, bestW = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const a = words.slice(0, i).join(" "), b = words.slice(i).join(" ");
+    const w = Math.max(textWidth(a, size, weight), textWidth(b, size, weight));
+    if (w <= maxW && w < bestW) { best = [a, b]; bestW = w; }
+  }
+  return best;
+}
+function displayName(raw) {
+  const n = (raw || "").replace(/^\s*(ngân hàng\s+)?hd\s*bank\s*[-–:]\s*/i, "").trim();
+  return n.replace(/^PGD\s+/i, "Phòng giao dịch ").replace(/^CN\s+/i, "Chi nhánh ").replace(/^Hội sở$/i, "Hội sở");
+}
+function norm(t) { return (t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase(); }
+function slug(t) { return norm(t).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "diem"; }
+function starPath(cx, cy, r) {
+  let d = "";
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+    d += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(3) + "," + (cy + rr * Math.sin(a)).toFixed(3);
+  }
+  return d + "Z";
+}
+function checkUrl(u) {
+  if (!u) return { ok: false, level: "warn", msg: "Chưa có link Google Maps hợp lệ cho địa điểm này. Vui lòng dán link đúng của địa điểm để tạo mã QR." };
+  let url;
+  try { url = new URL(u); } catch { return { ok: false, level: "err", msg: "Link không hợp lệ. Link phải bắt đầu bằng https://" }; }
+  if (!/^https?:$/.test(url.protocol)) return { ok: false, level: "err", msg: "Link phải bắt đầu bằng https://" };
+  const google = /(^|\.)google\.[a-z.]+$/.test(url.hostname) || url.hostname === "maps.app.goo.gl" || url.hostname === "goo.gl";
+  if (!google) return { ok: true, level: "warn", msg: "Link này không phải của Google Maps. Hãy chắc chắn đây đúng là link bạn muốn in." };
+  if (/[?&]q=-?\d+\.\d+,-?\d+\.\d+/.test(u) || /\/maps\/@-?\d/.test(u))
+    return { ok: true, level: "warn", msg: "Link có vẻ là tọa độ/bản đồ chứ không phải trang địa điểm. Nên dùng link “Chia sẻ” của chính địa điểm." };
+  return { ok: true };
+}
+
+/* ---------------- thiết kế ---------------- */
+function buildDesign() {
+  const T = TEMPLATES[state.tpl];
+  const { w: W, h: H, pad } = T;
+  const url = $("url").value.trim();
+  const chk = checkUrl(url);
+  const name = $("name").value.trim() || "Tên đơn vị kinh doanh";
+  const addr = $("showAddr").checked && T.addr ? $("addr").value.trim() : "";
+  const cta = $("ctaPreset").value === "custom" ? $("ctaCustom").value.trim() : CTA[$("ctaPreset").value];
+  const innerW = W - pad * 2;
+
+  const svg = s("svg", { xmlns: SVGNS, viewBox: `0 0 ${W} ${H}`, width: `${W}mm`, height: `${H}mm`,
+                         "font-family": FONT, "text-rendering": "geometricPrecision" });
+  svg.append(s("title", null, `${name} – mã QR Google Maps`));
+  svg.append(s("rect", { x: 0, y: 0, width: W, height: H, fill: "#ffffff" }));
+
+  // ---- header đỏ: logo tải lên (trong nền trắng bo góc) hoặc chữ HDBank
+  svg.append(s("rect", { x: 0, y: 0, width: W, height: T.header, fill: RED }));
+  svg.append(s("rect", { x: 0, y: T.header, width: W, height: Math.max(1, T.header * 0.05), fill: YELLOW }));
+  if (state.logo) {
+    const lh = T.logoH, lw = Math.min(innerW * 0.8, lh * state.logoRatio);
+    const lhh = lw / state.logoRatio, padX = lhh * 0.35, padY = lhh * 0.25;
+    const bw = lw + padX * 2, bh = lhh + padY * 2;
+    svg.append(s("rect", { x: (W - bw) / 2, y: (T.header - bh) / 2, width: bw, height: bh, rx: bh * 0.18, fill: "#ffffff" }));
+    svg.append(s("image", { href: state.logo, x: (W - lw) / 2, y: (T.header - lhh) / 2, width: lw, height: lhh, preserveAspectRatio: "xMidYMid meet" }));
+  } else {
+    svg.append(s("text", { x: W / 2, y: T.header / 2 + T.brand * 0.36, "text-anchor": "middle", "font-size": T.brand,
+                           "font-weight": 800, fill: "#ffffff", "letter-spacing": -T.brand * 0.02 }, "HDBank"));
+  }
+
+  let y = T.header + T.header * 0.05 + pad * 0.9;
+  // ---- tên đơn vị
+  const nm = fit(name, innerW, T.name, T.nameMin, 2, 700);
+  nm.lines.forEach((l, i) => {
+    svg.append(s("text", { x: W / 2, y: y + nm.size * (0.92 + i * 1.2), "text-anchor": "middle", "font-size": nm.size.toFixed(2), "font-weight": 700, fill: INK }, l));
+  });
+  y += nm.size * (0.92 + (nm.lines.length - 1) * 1.2) + nm.size * 0.45;
+
+  // ---- địa chỉ
+  if (addr) {
+    const ad = fit(addr, innerW * 0.94, T.addr, T.addr * 0.8, 2, 400);
+    ad.lines.forEach((l, i) => svg.append(s("text", { x: W / 2, y: y + ad.size * (1.05 + i * 1.3), "text-anchor": "middle", "font-size": ad.size.toFixed(2), fill: GRAY }, l)));
+    y += ad.size * (1.05 + (ad.lines.length - 1) * 1.3) + ad.size * 0.6;
+  }
+  y += pad * 0.5;
+
+  // ---- tính chỗ còn lại cho QR
+  const ctaFit = cta ? fit(cta, innerW, T.cta, T.cta * 0.78, 3, 600) : { lines: [], size: T.cta };
+  const ctaH = ctaFit.lines.length ? ctaFit.size * (1 + (ctaFit.lines.length - 1) * 1.25) + ctaFit.size * 0.4 : 0;
+  const starsH = T.stars ? T.stars * 1.6 : 0;
+  const bottom = H - (T.footer || 0) - pad * 0.6;
+  const cardPad = Math.max(3, T.qr * 0.06);
+  const qrSize = Math.max(20, Math.min(T.qr, innerW - cardPad * 2, bottom - y - cardPad * 2 - pad * 0.6 - ctaH - starsH));
+  const cardW = qrSize + cardPad * 2, cardX = (W - cardW) / 2, cardY = y;
+
+  svg.append(s("rect", { x: cardX, y: cardY, width: cardW, height: cardW, rx: cardPad * 0.9, fill: "#ffffff", stroke: RED, "stroke-width": Math.max(0.6, T.qr * 0.014) }));
+  if (chk.ok) {
+    const qr = qrcode(0, "M");
+    qr.addData(url);
+    qr.make();
+    const n = qr.getModuleCount(), m = qrSize / n;
+    let d = "";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      if (qr.isDark(r, c)) d += `M${(cardX + cardPad + c * m).toFixed(3)},${(cardY + cardPad + r * m).toFixed(3)}h${m.toFixed(3)}v${m.toFixed(3)}h${(-m).toFixed(3)}z`;
+    svg.append(s("path", { d, fill: "#000000", "shape-rendering": "crispEdges" }));
+  } else {
+    svg.append(s("rect", { x: cardX + cardPad, y: cardY + cardPad, width: qrSize, height: qrSize, fill: "#f1f0ec" }));
+    svg.append(s("text", { x: W / 2, y: cardY + cardW / 2, "text-anchor": "middle", "font-size": T.cta * 0.8, fill: GRAY }, "Chưa có link Google Maps"));
+  }
+  y = cardY + cardW + pad * 0.6;
+
+  // ---- lời kêu gọi + 5 sao
+  ctaFit.lines.forEach((l, i) => svg.append(s("text", { x: W / 2, y: y + ctaFit.size * (0.95 + i * 1.25), "text-anchor": "middle", "font-size": ctaFit.size.toFixed(2), "font-weight": 600, fill: INK }, l)));
+  y += ctaH;
+  if (T.stars) {
+    const r = T.stars / 2, gap = T.stars * 0.35, total = 5 * T.stars + 4 * gap;
+    for (let i = 0; i < 5; i++) svg.append(s("path", { d: starPath((W - total) / 2 + r + i * (T.stars + gap), y + r * 1.1, r), fill: YELLOW }));
+  }
+
+  // ---- footer
+  if (T.footer) {
+    svg.append(s("rect", { x: 0, y: H - T.footer, width: W, height: T.footer, fill: RED_DARK }));
+    svg.append(s("text", { x: W / 2, y: H - T.footer / 2 + T.footerText * 0.36, "text-anchor": "middle", "font-size": T.footerText, "font-weight": 600, fill: "#ffffff", "letter-spacing": T.footerText * 0.04 }, "Tìm HDBank trên Google Maps"));
+  }
+  return { svg, ok: chk.ok, name };
+}
+
+function render() {
+  const T = TEMPLATES[state.tpl];
+  const { svg, ok } = buildDesign();
+  const paper = $("paper");
+  paper.replaceChildren(svg);
+  const maxW = Math.min($("paper").parentElement.clientWidth - 48, 520), maxH = window.innerHeight * 0.78;
+  const scale = Math.min(maxW / T.w, maxH / T.h);
+  paper.style.width = `${Math.round(T.w * scale)}px`;
+  $("cap").textContent = `${T.label} · ${T.size} · xem trước theo tỉ lệ`;
+  ["dlPng", "dlSvg", "print"].forEach(id => $(id).disabled = !ok);
+
+  const u = $("url").value.trim(), chk = checkUrl(u), box = $("urlMsg");
+  box.replaceChildren();
+  if (chk.msg) { const m = document.createElement("div"); m.className = `msg ${chk.level}`; m.textContent = chk.msg; box.append(m); }
+  const a = $("openUrl"); a.hidden = !(u && chk.ok); if (!a.hidden) a.href = u;
+}
+
+/* ---------------- xuất file ---------------- */
+function svgString() {
+  const { svg } = buildDesign();
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+}
+function fileBase() { return `QR-GoogleMaps_${slug($("name").value)}_${state.tpl}`; }
+function download(blob, filename) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+$("dlSvg").addEventListener("click", () => download(new Blob([svgString()], { type: "image/svg+xml" }), fileBase() + ".svg"));
+$("dlPng").addEventListener("click", async () => {
+  const T = TEMPLATES[state.tpl], dpi = 300;
+  const pw = Math.round(T.w / 25.4 * dpi), ph = Math.round(T.h / 25.4 * dpi);
+  const src = svgString().replace(/width="[\d.]+mm" height="[\d.]+mm"/, `width="${pw}" height="${ph}"`);
+  const img = new Image();
+  img.src = URL.createObjectURL(new Blob([src], { type: "image/svg+xml" }));
+  await img.decode();
+  const cv = document.createElement("canvas"); cv.width = pw; cv.height = ph;
+  const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, pw, ph); ctx.drawImage(img, 0, 0, pw, ph);
+  URL.revokeObjectURL(img.src);
+  cv.toBlob(b => download(b, fileBase() + ".png"), "image/png");
+});
+$("print").addEventListener("click", () => {
+  const T = TEMPLATES[state.tpl];
+  $("pageSize").textContent = `@page { size: ${T.w}mm ${T.h}mm; margin: 0; }`;
+  const { svg } = buildDesign();
+  $("printArea").replaceChildren(svg);
+  window.print();
+});
+
+/* ---------------- điều khiển ---------------- */
+function fillBranches() {
+  const reg = $("region").value;
+  const list = state.data.filter(b => !reg || b.region === reg).sort((a, b) => a.name.localeCompare(b.name, "vi"));
+  const sel = $("branch");
+  const opts = [new Option(`— Chọn chi nhánh / PGD (${list.length}) —`, "")];
+  for (const b of list) opts.push(new Option(reg ? b.name : `${b.name} · ${b.region}`, String(b.id)));
+  opts.push(new Option("✎ Tự điền thông tin khác", "custom"));
+  sel.replaceChildren(...opts);
+}
+function pickBranch() {
+  const v = $("branch").value;
+  if (v === "custom") {
+    $("name").value = ""; $("addr").value = ""; $("url").value = "";
+    $("name").focus();
+  } else if (v) {
+    const b = state.data.find(x => String(x.id) === v);
+    $("name").value = displayName(b.name);
+    $("addr").value = b.address || "";
+    $("url").value = b.url || "";
+    if (!$("region").value) { $("region").value = b.region; fillBranches(); $("branch").value = v; }
+  }
+  render();
+}
+function buildTemplatePicker() {
+  const box = $("tpls");
+  for (const [key, T] of Object.entries(TEMPLATES)) {
+    const k = 48 / Math.max(T.w, T.h);
+    const icon = s("svg", { width: Math.round(T.w * k), height: Math.round(T.h * k), viewBox: `0 0 ${T.w} ${T.h}`, "aria-hidden": "true" });
+    icon.append(s("rect", { x: 1, y: 1, width: T.w - 2, height: T.h - 2, rx: 4, fill: "#fff", stroke: "#bdbab2", "stroke-width": 2 }));
+    icon.append(s("rect", { x: 1, y: 1, width: T.w - 2, height: T.header, fill: RED }));
+    const q = Math.min(T.w, T.h) * 0.42;
+    icon.append(s("rect", { x: (T.w - q) / 2, y: T.h * 0.5 - q / 2 + T.header * 0.3, width: q, height: q, fill: "#333" }));
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "tpl"; b.setAttribute("aria-pressed", String(key === state.tpl));
+    b.append(icon, document.createTextNode(T.label));
+    const sm = document.createElement("small"); sm.textContent = T.size; b.append(sm);
+    b.addEventListener("click", () => {
+      state.tpl = key;
+      box.querySelectorAll(".tpl").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      render();
+    });
+    box.append(b);
+  }
+}
+
+async function boot() {
+  buildTemplatePicker();
+  try {
+    const res = await fetch("branches.json", { cache: "no-cache" });
+    state.data = (await res.json()).branches;
+  } catch (e) { console.error(e); }
+  const regions = [...new Set(state.data.map(b => b.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
+  $("region").append(...regions.map(r => new Option(r, r)));
+  fillBranches();
+  $("region").addEventListener("change", () => { fillBranches(); render(); });
+  $("branch").addEventListener("change", pickBranch);
+  for (const id of ["name", "addr", "url", "ctaCustom"]) $(id).addEventListener("input", render);
+  $("showAddr").addEventListener("change", render);
+  $("ctaPreset").addEventListener("change", () => { $("ctaCustom").hidden = $("ctaPreset").value !== "custom"; render(); });
+  $("logo").addEventListener("change", (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      const im = new Image();
+      im.onload = () => { state.logo = rd.result; state.logoRatio = (im.naturalWidth || 4) / (im.naturalHeight || 1); $("clearLogo").hidden = false; render(); };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  });
+  $("clearLogo").addEventListener("click", (e) => { e.preventDefault(); state.logo = null; $("logo").value = ""; $("clearLogo").hidden = true; render(); });
+  let t; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(render, 120); });
+  render();
+}
+boot();
+</script>
+</body>
+</html>
