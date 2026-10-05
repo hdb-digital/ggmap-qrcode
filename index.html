@@ -5,51 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HDBank · Tạo mã QR Google Maps</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#dc2c29">
+<meta name="theme-color" content="#da2128">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="assets/brand.css">
 <style>
+/* Biến riêng của tool QR, map vào hệ màu trong brand.css (chỉ 5 màu thương hiệu + sắc độ 10–100%) */
 :root {
-  /* Nhận diện HDBank (template slide): đỏ DC2C29, cam F7941D, vàng FFC20E, xám 4D4F4F */
-  color-scheme: light;
-  --red: #dc2c29; --red-dark: #b81f1c; --orange: #f7941d; --yellow: #ffc20e; --gray: #4d4f4f;
-  --page: #f6f5f3; --panel: #ffffff; --ink: #1f2121; --ink2: #4d4f4f; --muted: #7d7f7f;
-  --line: #e7e5e1; --field: #ffffff; --focus: var(--orange); --warn-bg: #fff6e0; --warn-ink: #7a5200;
-  --err-bg: #fdeceb; --err-ink: #9b1c1c; --brand: var(--red); --btn: var(--red); --btn-ink: #ffffff;
-  --brand-grad: linear-gradient(90deg, var(--yellow) 0%, var(--orange) 35%, var(--red) 75%);
-  --font: "Myriad Pro", "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --panel: var(--surface); --field: var(--surface); --muted: var(--gray);
+  --warn-bg: var(--yellow-20); --warn-ink: var(--ink); --err-bg: var(--red-10); --err-ink: var(--ink);
 }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.45 var(--font); }
-.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; }
-/* Thanh tiêu đề kiểu slide master: logo trên nền trắng + dải đỏ có vệt cam/vàng */
-.brandbar { display: flex; align-items: stretch; height: 60px; background: var(--panel); }
-.brandbar .logo { flex: none; display: flex; align-items: center; padding: 0 20px 0 16px; }
-.brandbar .logo img { height: 28px; width: auto; display: block; }
-.brandbar .bar {
-  flex: 1; min-width: 0; display: flex; align-items: center; padding-left: clamp(84px, 14vw, 190px); padding-right: 16px;
-  background: url("assets/bar.png") left center / auto 100% no-repeat, var(--red); border-top-left-radius: 14px;
-}
-.brandbar h1 { margin: 0; color: #fff; font-size: 21px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-header .top { background: var(--panel); border-bottom: 1px solid var(--line); }
-header .top .wrap { padding-block: 10px; }
-.sub { color: var(--ink2); font-size: 13.5px; }
-@media (max-width: 560px) {
-  .brandbar { height: 50px; }
-  .brandbar .logo { padding-right: 12px; }
-  .brandbar .logo img { height: 21px; }
-  .brandbar .bar { padding-left: 60px; }
-  .brandbar h1 { font-size: 17px; }
-}
-.layout { display: grid; grid-template-columns: minmax(300px, 390px) 1fr; gap: 16px; padding-block: 16px 40px; align-items: start; }
+.layout { display: grid; grid-template-columns: minmax(300px, 390px) 1fr; gap: 16px; padding-block: 20px 8px; align-items: start; }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; }
-.panel::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--brand-grad); }
+.panel { background: var(--panel); border-radius: 12px; padding: 18px; border-top: 4px solid var(--red); box-shadow: var(--shadow); }
 .panel + .panel { margin-top: 12px; }
-.panel h2 { font-size: 16px; margin: 0 0 10px; font-weight: 700; display: flex; gap: 8px; align-items: center; }
-.panel h2 .n { width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
+.panel h2 { font: 700 17px/1.3 var(--font-head); margin: 0 0 12px; display: flex; gap: 8px; align-items: center; }
+.panel h2 .n { width: 24px; height: 24px; border-radius: 50%; background: var(--red); color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
 label.f { display: block; font-size: 12.5px; color: var(--ink2); margin-top: 10px; }
 label.f:first-of-type { margin-top: 0; }
 input[type=text], input[type=url], select, textarea {
@@ -57,40 +30,42 @@ input[type=text], input[type=url], select, textarea {
   border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
 }
 textarea { resize: vertical; min-height: 56px; }
-input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--red); outline-offset: 1px; }
 .row { display: flex; gap: 8px; align-items: center; }
 .check { display: flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink2); margin-top: 6px; }
 .msg { font-size: 12.5px; border-radius: 8px; padding: 8px 10px; margin-top: 8px; }
-.msg.warn { background: var(--warn-bg); color: var(--warn-ink); }
-.msg.err { background: var(--err-bg); color: var(--err-ink); }
+.msg.warn { background: var(--warn-bg); color: var(--warn-ink); border-left: 3px solid var(--amber); }
+.msg.err { background: var(--err-bg); color: var(--err-ink); border-left: 3px solid var(--red); }
 .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
-a { color: var(--red-dark); }
 .tpls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .tpl { border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; cursor: pointer; background: var(--field); font: inherit; color: var(--ink); }
-.tpl[aria-pressed="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; background: #fdf1f0; font-weight: 700; color: var(--red-dark); }
+.tpl[aria-pressed="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; background: var(--red-10); font-weight: 700; color: var(--red); }
 .tpl svg { display: block; margin: 0 auto 6px; }
 .tpl small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
 .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-.btn { font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--field); color: var(--ink); }
-.btn.primary { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
-.btn.primary:hover:not(:disabled) { background: var(--red-dark); border-color: var(--red-dark); }
-.btn:not(.primary):hover:not(:disabled) { border-color: var(--red); color: var(--red-dark); }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
 .preview { position: sticky; top: 12px; }
-.stage { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; place-items: center; min-height: 420px; }
-.paper { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 28px rgba(0,0,0,.12); line-height: 0; }
+.stage { background: var(--panel); box-shadow: var(--shadow); border-radius: 12px; padding: 24px; display: grid; place-items: center; min-height: 420px; }
+.paper { background: #fff; box-shadow: 0 1px 2px rgba(88,89,91,.15), 0 8px 28px rgba(88,89,91,.22); line-height: 0; }
 .paper svg { display: block; width: 100%; height: auto; }
 .cap { color: var(--muted); font-size: 12px; margin-top: 8px; text-align: center; }
 </style>
 </head>
 <body>
-<header>
-  <div class="brandbar">
-    <a class="logo" href="/" title="Về trang chủ HDBank Digital"><img src="assets/logo.png" alt="HDBank" width="105" height="28"></a>
-    <div class="bar"><h1>Tạo mã QR Google Maps cho chi nhánh / PGD</h1></div>
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="/"><img src="assets/logo.png" alt="HDBank" width="113" height="30"></a>
+    <nav class="site-nav" aria-label="Công cụ">
+      <a href="/ggmap-dashboard/">Đánh giá <span class="long">Google Maps</span></a>
+      <a href="/ggmap-qrcode/" aria-current="page">Tạo mã QR</a>
+    </nav>
   </div>
-  <div class="top"><div class="wrap"><div class="sub">Chọn địa điểm → chọn mẫu → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</div></div></div>
 </header>
+<section class="band">
+  <div class="wrap">
+    <h1>Tạo mã QR Google Maps cho chi nhánh / PGD</h1>
+    <p class="sub">Chọn địa điểm → chọn mẫu → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</p>
+  </div>
+</section>
 
 <main class="wrap layout">
   <div>
@@ -123,13 +98,21 @@ a { color: var(--red-dark); }
   </div>
 </main>
 
+<footer class="site-foot">
+  <div class="wrap">
+    <span><b>HDBank Digital</b> · Trang nội bộ</span>
+    <span>Hotline <a href="tel:19006060">1900 6060</a> · <a href="https://www.hdbank.com.vn" target="_blank" rel="noopener">www.hdbank.com.vn</a></span>
+  </div>
+</footer>
+
 <script src="qrcode.min.js"></script>
 <script>
 "use strict";
 const $ = (id) => document.getElementById(id);
 const SVGNS = "http://www.w3.org/2000/svg";
 const FONT = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const RED = "#dc2c29", RED_DARK = "#b81f1c", YELLOW = "#ffc20e", INK = "#1a1a1a", GRAY = "#4d4f4f";
+// Mã màu theo Guideline thiết kế HDBank: đỏ DA2128, xám 58595B, cam FAA61A, cam vàng FFC20E
+const RED = "#da2128", ORANGE = "#faa61a", AMBER = "#ffc20e", INK = "#000000", GRAY = "#58595b", GRAY10 = "#eeeeef", GRAY30 = "#cdcdce";
 const CTA = "Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps";
 // Kích thước mm. qr = cạnh QR tối đa; các cỡ chữ tính bằng mm.
 const TEMPLATES = {
@@ -231,7 +214,7 @@ function buildDesign() {
 
   // ---- header đỏ: logo tải lên (trong nền trắng bo góc) hoặc chữ HDBank
   svg.append(s("rect", { x: 0, y: 0, width: W, height: T.header, fill: RED }));
-  svg.append(s("rect", { x: 0, y: T.header, width: W, height: Math.max(1, T.header * 0.05), fill: YELLOW }));
+  svg.append(s("rect", { x: 0, y: T.header, width: W, height: Math.max(1, T.header * 0.05), fill: AMBER }));
   if (state.logo) {
     const lh = T.logoH, lw = Math.min(innerW * 0.8, lh * state.logoRatio);
     const lhh = lw / state.logoRatio, padX = lhh * 0.35, padY = lhh * 0.25;
@@ -279,7 +262,7 @@ function buildDesign() {
       if (qr.isDark(r, c)) d += `M${(cardX + cardPad + c * m).toFixed(3)},${(cardY + cardPad + r * m).toFixed(3)}h${m.toFixed(3)}v${m.toFixed(3)}h${(-m).toFixed(3)}z`;
     svg.append(s("path", { d, fill: "#000000", "shape-rendering": "crispEdges" }));
   } else {
-    svg.append(s("rect", { x: cardX + cardPad, y: cardY + cardPad, width: qrSize, height: qrSize, fill: "#f1f0ec" }));
+    svg.append(s("rect", { x: cardX + cardPad, y: cardY + cardPad, width: qrSize, height: qrSize, fill: GRAY10 }));
     svg.append(s("text", { x: W / 2, y: cardY + cardW / 2, "text-anchor": "middle", "font-size": T.cta * 0.8, fill: GRAY }, "Chưa có link Google Maps"));
   }
   y = cardY + cardW + pad * 0.6;
@@ -289,13 +272,19 @@ function buildDesign() {
   y += ctaH;
   if (T.stars) {
     const r = T.stars / 2, gap = T.stars * 0.35, total = 5 * T.stars + 4 * gap;
-    for (let i = 0; i < 5; i++) svg.append(s("path", { d: starPath((W - total) / 2 + r + i * (T.stars + gap), y + r * 1.1, r), fill: YELLOW }));
+    for (let i = 0; i < 5; i++) svg.append(s("path", { d: starPath((W - total) / 2 + r + i * (T.stars + gap), y + r * 1.1, r), fill: AMBER }));
   }
 
   // ---- footer
   if (T.footer) {
-    svg.append(s("rect", { x: 0, y: H - T.footer, width: W, height: T.footer, fill: RED_DARK }));
-    svg.append(s("text", { x: W / 2, y: H - T.footer / 2 + T.footerText * 0.36, "text-anchor": "middle", "font-size": T.footerText, "font-weight": 600, fill: "#ffffff", "letter-spacing": T.footerText * 0.04 }, "Tìm HDBank trên Google Maps"));
+    // dải màu chủ đạo chạy từ dưới lên: cam vàng ở đáy → cam → đỏ phía trên
+    const grad = s("linearGradient", { id: "footGrad", x1: 0, y1: 0, x2: 0, y2: 1 });
+    [[0, RED], [0.55, RED], [0.84, ORANGE], [1, AMBER]].forEach(([o, c]) => grad.append(s("stop", { offset: o, "stop-color": c })));
+    const defs = s("defs");
+    defs.append(grad);
+    svg.append(defs);
+    svg.append(s("rect", { x: 0, y: H - T.footer, width: W, height: T.footer, fill: "url(#footGrad)" }));
+    svg.append(s("text", { x: W / 2, y: H - T.footer * 0.62 + T.footerText * 0.36, "text-anchor": "middle", "font-size": T.footerText, "font-weight": 600, fill: "#ffffff", "letter-spacing": T.footerText * 0.04 }, "Tìm HDBank trên Google Maps"));
   }
   return { svg, ok: chk.ok, name };
 }
@@ -404,10 +393,10 @@ function buildTemplatePicker() {
   for (const [key, T] of Object.entries(TEMPLATES)) {
     const k = 48 / Math.max(T.w, T.h);
     const icon = s("svg", { width: Math.round(T.w * k), height: Math.round(T.h * k), viewBox: `0 0 ${T.w} ${T.h}`, "aria-hidden": "true" });
-    icon.append(s("rect", { x: 1, y: 1, width: T.w - 2, height: T.h - 2, rx: 4, fill: "#fff", stroke: "#bdbab2", "stroke-width": 2 }));
+    icon.append(s("rect", { x: 1, y: 1, width: T.w - 2, height: T.h - 2, rx: 4, fill: "#fff", stroke: GRAY30, "stroke-width": 2 }));
     icon.append(s("rect", { x: 1, y: 1, width: T.w - 2, height: T.header, fill: RED }));
     const q = Math.min(T.w, T.h) * 0.42;
-    icon.append(s("rect", { x: (T.w - q) / 2, y: T.h * 0.5 - q / 2 + T.header * 0.3, width: q, height: q, fill: "#333" }));
+    icon.append(s("rect", { x: (T.w - q) / 2, y: T.h * 0.5 - q / 2 + T.header * 0.3, width: q, height: q, fill: GRAY }));
     const b = document.createElement("button");
     b.type = "button"; b.className = "tpl"; b.setAttribute("aria-pressed", String(key === state.tpl));
     b.append(icon, document.createTextNode(T.label));
