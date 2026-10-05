@@ -5,33 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HDBank · Tạo mã QR Google Maps</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#dc2c29">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
 <style>
 :root {
+  /* Nhận diện HDBank (template slide): đỏ DC2C29, cam F7941D, vàng FFC20E, xám 4D4F4F */
   color-scheme: light;
-  --page: #f6f5f2; --panel: #ffffff; --ink: #151515; --ink2: #55534e; --muted: #8a8780;
-  --line: #e2e0da; --field: #ffffff; --focus: #1c5cab; --warn-bg: #fff6e0; --warn-ink: #7a5200;
-  --err-bg: #fdeceb; --err-ink: #9b1c1c; --brand: #c8102e; --btn: #151515; --btn-ink: #ffffff;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --page: #0f0f0e; --panel: #1a1a19; --ink: #f4f4f2; --ink2: #c3c2b7; --muted: #8a8780;
-    --line: #34332f; --field: #121211; --focus: #86b6ef; --warn-bg: #3a2e10; --warn-ink: #f5cf7a;
-    --err-bg: #3d1716; --err-ink: #f2a3a0; --btn: #f4f4f2; --btn-ink: #151515;
-  }
+  --red: #dc2c29; --red-dark: #b81f1c; --orange: #f7941d; --yellow: #ffc20e; --gray: #4d4f4f;
+  --page: #f6f5f3; --panel: #ffffff; --ink: #1f2121; --ink2: #4d4f4f; --muted: #7d7f7f;
+  --line: #e7e5e1; --field: #ffffff; --focus: var(--orange); --warn-bg: #fff6e0; --warn-ink: #7a5200;
+  --err-bg: #fdeceb; --err-ink: #9b1c1c; --brand: var(--red); --btn: var(--red); --btn-ink: #ffffff;
+  --brand-grad: linear-gradient(90deg, var(--yellow) 0%, var(--orange) 35%, var(--red) 75%);
+  --font: "Myriad Pro", "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-header.top { background: var(--panel); border-top: 4px solid var(--brand); border-bottom: 1px solid var(--line); }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.45 var(--font); }
 .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; }
-header.top .wrap { padding-block: 16px; }
-h1 { margin: 0; font-size: 19px; font-weight: 650; }
-.sub { color: var(--ink2); font-size: 13px; margin-top: 2px; }
+/* Thanh tiêu đề kiểu slide master: logo trên nền trắng + dải đỏ có vệt cam/vàng */
+.brandbar { display: flex; align-items: stretch; height: 60px; background: var(--panel); }
+.brandbar .logo { flex: none; display: flex; align-items: center; padding: 0 20px 0 16px; }
+.brandbar .logo img { height: 28px; width: auto; display: block; }
+.brandbar .bar {
+  flex: 1; min-width: 0; display: flex; align-items: center; padding-left: clamp(84px, 14vw, 190px); padding-right: 16px;
+  background: url("assets/bar.png") left center / auto 100% no-repeat, var(--red); border-top-left-radius: 14px;
+}
+.brandbar h1 { margin: 0; color: #fff; font-size: 21px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header .top { background: var(--panel); border-bottom: 1px solid var(--line); }
+header .top .wrap { padding-block: 10px; }
+.sub { color: var(--ink2); font-size: 13.5px; }
+@media (max-width: 560px) {
+  .brandbar { height: 50px; }
+  .brandbar .logo { padding-right: 12px; }
+  .brandbar .logo img { height: 21px; }
+  .brandbar .bar { padding-left: 60px; }
+  .brandbar h1 { font-size: 17px; }
+}
 .layout { display: grid; grid-template-columns: minmax(300px, 390px) 1fr; gap: 16px; padding-block: 16px 40px; align-items: start; }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; }
+.panel::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--brand-grad); }
 .panel + .panel { margin-top: 12px; }
-.panel h2 { font-size: 14px; margin: 0 0 10px; font-weight: 650; display: flex; gap: 8px; align-items: center; }
+.panel h2 { font-size: 16px; margin: 0 0 10px; font-weight: 700; display: flex; gap: 8px; align-items: center; }
 .panel h2 .n { width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
 label.f { display: block; font-size: 12.5px; color: var(--ink2); margin-top: 10px; }
 label.f:first-of-type { margin-top: 0; }
@@ -47,15 +64,17 @@ input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px s
 .msg.warn { background: var(--warn-bg); color: var(--warn-ink); }
 .msg.err { background: var(--err-bg); color: var(--err-ink); }
 .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
-a { color: var(--focus); }
+a { color: var(--red-dark); }
 .tpls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .tpl { border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; cursor: pointer; background: var(--field); font: inherit; color: var(--ink); }
-.tpl[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; font-weight: 600; }
+.tpl[aria-pressed="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; background: #fdf1f0; font-weight: 700; color: var(--red-dark); }
 .tpl svg { display: block; margin: 0 auto 6px; }
 .tpl small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
 .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 .btn { font: inherit; font-weight: 600; border-radius: 8px; padding: 10px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--field); color: var(--ink); }
 .btn.primary { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); grid-column: 1 / -1; }
+.btn.primary:hover:not(:disabled) { background: var(--red-dark); border-color: var(--red-dark); }
+.btn:not(.primary):hover:not(:disabled) { border-color: var(--red); color: var(--red-dark); }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .preview { position: sticky; top: 12px; }
 .stage { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: grid; place-items: center; min-height: 420px; }
@@ -72,11 +91,12 @@ a { color: var(--focus); }
 <style id="pageSize"></style>
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <h1>Tạo mã QR Google Maps cho chi nhánh / PGD</h1>
-    <div class="sub">Chọn địa điểm → kiểm tra nội dung → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</div>
+<header>
+  <div class="brandbar">
+    <a class="logo" href="/" title="Về trang chủ HDBank Digital"><img src="assets/logo.png" alt="HDBank" width="105" height="28"></a>
+    <div class="bar"><h1>Tạo mã QR Google Maps cho chi nhánh / PGD</h1></div>
   </div>
+  <div class="top"><div class="wrap"><div class="sub">Chọn địa điểm → kiểm tra nội dung → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</div></div></div>
 </header>
 
 <main class="wrap layout">
@@ -121,11 +141,11 @@ a { color: var(--focus); }
     <section class="panel">
       <h2><span class="n">3</span>Mẫu thiết kế & xuất file</h2>
       <div class="tpls" id="tpls"></div>
-      <label class="f" style="margin-top:14px">Logo chính thức (tùy chọn, PNG/SVG/JPG)
+      <label class="f" style="margin-top:14px">Dùng logo khác (tùy chọn, PNG/SVG/JPG)
         <input type="file" id="logo" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="margin-top:4px">
       </label>
-      <div class="hint">Không có logo thì thiết kế dùng chữ “HDBank”. Logo chỉ được xử lý trên máy bạn, không tải lên đâu cả.
-        <a href="#" id="clearLogo" hidden>Bỏ logo</a></div>
+      <div class="hint">Mặc định dùng logo HDBank chuẩn. Logo tải lên chỉ được xử lý trên máy bạn, không gửi đi đâu cả.
+        <a href="#" id="clearLogo" hidden>Dùng lại logo mặc định</a></div>
       <div class="btns">
         <button class="btn primary" id="dlPng" type="button">Tải PNG để in (300 dpi)</button>
         <button class="btn" id="dlSvg" type="button">Tải SVG</button>
@@ -148,7 +168,7 @@ a { color: var(--focus); }
 const $ = (id) => document.getElementById(id);
 const SVGNS = "http://www.w3.org/2000/svg";
 const FONT = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const RED = "#c8102e", RED_DARK = "#9e0b22", YELLOW = "#fdb913", INK = "#1a1a1a", GRAY = "#5a5a5a";
+const RED = "#dc2c29", RED_DARK = "#b81f1c", YELLOW = "#ffc20e", INK = "#1a1a1a", GRAY = "#4d4f4f";
 const CTA = {
   review: "Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps",
   direction: "Quét mã để tìm đường đến chúng tôi trên Google Maps",
@@ -164,7 +184,7 @@ const TEMPLATES = {
         name: 4.8, nameMin: 3.4, addr: 0, qr: 50, cta: 3.1, stars: 0, footer: 0, footerText: 0 },
 };
 
-const state = { data: [], tpl: "a5", logo: null, logoRatio: 1 };
+const state = { data: [], tpl: "a5", logo: null, logoRatio: 1, defaultLogo: null, defaultRatio: 1 };
 
 /* ---------------- tiện ích ---------------- */
 function s(tag, attrs, text) {
@@ -418,8 +438,20 @@ function buildTemplatePicker() {
   }
 }
 
+/** Logo mặc định: đọc assets/logo.png thành data URL để nhúng được vào SVG/PNG khi xuất file. */
+async function loadDefaultLogo() {
+  try {
+    const blob = await (await fetch("assets/logo.png")).blob();
+    const url = await new Promise((ok, fail) => { const rd = new FileReader(); rd.onload = () => ok(rd.result); rd.onerror = fail; rd.readAsDataURL(blob); });
+    const im = new Image(); im.src = url; await im.decode();
+    state.defaultLogo = url; state.defaultRatio = im.naturalWidth / im.naturalHeight;
+    if (!state.logo) { state.logo = url; state.logoRatio = state.defaultRatio; }
+  } catch (e) { console.error(e); }
+}
+
 async function boot() {
   buildTemplatePicker();
+  await loadDefaultLogo();
   try {
     const res = await fetch("branches.json", { cache: "no-cache" });
     state.data = (await res.json()).branches;
@@ -442,7 +474,7 @@ async function boot() {
     };
     rd.readAsDataURL(f);
   });
-  $("clearLogo").addEventListener("click", (e) => { e.preventDefault(); state.logo = null; $("logo").value = ""; $("clearLogo").hidden = true; render(); });
+  $("clearLogo").addEventListener("click", (e) => { e.preventDefault(); state.logo = state.defaultLogo; state.logoRatio = state.defaultRatio; $("logo").value = ""; $("clearLogo").hidden = true; render(); });
   let t; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(render, 120); });
   render();
 }
