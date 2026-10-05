@@ -96,7 +96,7 @@ a { color: var(--red-dark); }
     <a class="logo" href="/" title="Về trang chủ HDBank Digital"><img src="assets/logo.png" alt="HDBank" width="105" height="28"></a>
     <div class="bar"><h1>Tạo mã QR Google Maps cho chi nhánh / PGD</h1></div>
   </div>
-  <div class="top"><div class="wrap"><div class="sub">Chọn địa điểm → kiểm tra nội dung → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</div></div></div>
+  <div class="top"><div class="wrap"><div class="sub">Chọn địa điểm → chọn mẫu → tải file in. Mọi xử lý diễn ra trên trình duyệt của bạn.</div></div></div>
 </header>
 
 <main class="wrap layout">
@@ -109,43 +109,13 @@ a { color: var(--red-dark); }
       <label class="f">Chi nhánh / Phòng giao dịch
         <select id="branch"></select>
       </label>
-      <div class="hint">Không có trong danh sách? Chọn “✎ Tự điền thông tin khác”.</div>
-    </section>
-
-    <section class="panel">
-      <h2><span class="n">2</span>Nội dung trên thiết kế</h2>
-      <label class="f">Tên đơn vị kinh doanh
-        <input type="text" id="name" maxlength="80" placeholder="VD: Phòng giao dịch Bảo Lộc">
-      </label>
-      <label class="f">Địa chỉ
-        <textarea id="addr" maxlength="200" rows="2"></textarea>
-      </label>
-      <label class="check"><input type="checkbox" id="showAddr" checked> Hiển thị địa chỉ trên thiết kế</label>
-      <label class="f">Link Google Maps (mã QR sẽ dẫn tới link này)
-        <input type="url" id="url" placeholder="https://maps.app.goo.gl/…" inputmode="url">
-      </label>
       <div id="urlMsg"></div>
-      <div class="hint">Lấy link: mở địa điểm trên Google Maps → <b>Chia sẻ</b> → <b>Sao chép đường liên kết</b>.
-        <a id="openUrl" href="#" target="_blank" rel="noopener" hidden>Mở link để kiểm tra ↗</a></div>
-      <label class="f">Lời kêu gọi
-        <select id="ctaPreset">
-          <option value="review">Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps</option>
-          <option value="direction">Quét mã để tìm đường đến chúng tôi trên Google Maps</option>
-          <option value="thanks">Cảm ơn Quý khách! Quét mã để chia sẻ trải nghiệm của bạn trên Google Maps</option>
-          <option value="custom">✎ Tự nhập…</option>
-        </select>
-      </label>
-      <input type="text" id="ctaCustom" maxlength="120" placeholder="Nhập lời kêu gọi" hidden style="margin-top:6px">
+      <div class="hint"><a id="openUrl" href="#" target="_blank" rel="noopener" hidden>Mở địa điểm trên Google Maps để kiểm tra ↗</a></div>
     </section>
 
     <section class="panel">
-      <h2><span class="n">3</span>Mẫu thiết kế & xuất file</h2>
+      <h2><span class="n">2</span>Mẫu thiết kế & xuất file</h2>
       <div class="tpls" id="tpls"></div>
-      <label class="f" style="margin-top:14px">Dùng logo khác (tùy chọn, PNG/SVG/JPG)
-        <input type="file" id="logo" accept="image/png,image/svg+xml,image/jpeg,image/webp" style="margin-top:4px">
-      </label>
-      <div class="hint">Mặc định dùng logo HDBank chuẩn. Logo tải lên chỉ được xử lý trên máy bạn, không gửi đi đâu cả.
-        <a href="#" id="clearLogo" hidden>Dùng lại logo mặc định</a></div>
       <div class="btns">
         <button class="btn primary" id="dlPng" type="button">Tải PNG để in (300 dpi)</button>
         <button class="btn" id="dlSvg" type="button">Tải SVG</button>
@@ -169,11 +139,7 @@ const $ = (id) => document.getElementById(id);
 const SVGNS = "http://www.w3.org/2000/svg";
 const FONT = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 const RED = "#dc2c29", RED_DARK = "#b81f1c", YELLOW = "#ffc20e", INK = "#1a1a1a", GRAY = "#4d4f4f";
-const CTA = {
-  review: "Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps",
-  direction: "Quét mã để tìm đường đến chúng tôi trên Google Maps",
-  thanks: "Cảm ơn Quý khách! Quét mã để chia sẻ trải nghiệm của bạn trên Google Maps",
-};
+const CTA = "Hài lòng với dịch vụ? Quét mã để đánh giá chúng tôi trên Google Maps";
 // Kích thước mm. qr = cạnh QR tối đa; các cỡ chữ tính bằng mm.
 const TEMPLATES = {
   a5: { label: "Standee A5", size: "148 × 210 mm", w: 148, h: 210, pad: 12, header: 36, brand: 15, logoH: 20,
@@ -184,7 +150,7 @@ const TEMPLATES = {
         name: 4.8, nameMin: 3.4, addr: 0, qr: 50, cta: 3.1, stars: 0, footer: 0, footerText: 0 },
 };
 
-const state = { data: [], tpl: "a5", logo: null, logoRatio: 1, defaultLogo: null, defaultRatio: 1 };
+const state = { data: [], tpl: "a5", logo: null, logoRatio: 1, sel: null }; // sel = địa điểm đang chọn trong danh sách
 
 /* ---------------- tiện ích ---------------- */
 function s(tag, attrs, text) {
@@ -244,7 +210,7 @@ function starPath(cx, cy, r) {
   return d + "Z";
 }
 function checkUrl(u) {
-  if (!u) return { ok: false, level: "warn", msg: "Chưa có link Google Maps hợp lệ cho địa điểm này. Vui lòng dán link đúng của địa điểm để tạo mã QR." };
+  if (!u) return { ok: false, level: "warn", msg: "Địa điểm này chưa có link Google Maps hợp lệ nên chưa tạo được mã QR. Link sẽ có sau khi danh sách địa điểm được cập nhật." };
   let url;
   try { url = new URL(u); } catch { return { ok: false, level: "err", msg: "Link không hợp lệ. Link phải bắt đầu bằng https://" }; }
   if (!/^https?:$/.test(url.protocol)) return { ok: false, level: "err", msg: "Link phải bắt đầu bằng https://" };
@@ -259,11 +225,12 @@ function checkUrl(u) {
 function buildDesign() {
   const T = TEMPLATES[state.tpl];
   const { w: W, h: H, pad } = T;
-  const url = $("url").value.trim();
+  const sel = state.sel || {};
+  const url = sel.url || "";
   const chk = checkUrl(url);
-  const name = $("name").value.trim() || "Tên đơn vị kinh doanh";
-  const addr = $("showAddr").checked && T.addr ? $("addr").value.trim() : "";
-  const cta = $("ctaPreset").value === "custom" ? $("ctaCustom").value.trim() : CTA[$("ctaPreset").value];
+  const name = sel.name || "Tên đơn vị kinh doanh";
+  const addr = T.addr ? sel.addr || "" : "";
+  const cta = CTA;
   const innerW = W - pad * 2;
 
   const svg = s("svg", { xmlns: SVGNS, viewBox: `0 0 ${W} ${H}`, width: `${W}mm`, height: `${H}mm`,
@@ -353,9 +320,9 @@ function render() {
   $("cap").textContent = `${T.label} · ${T.size} · xem trước theo tỉ lệ`;
   ["dlPng", "dlSvg", "print"].forEach(id => $(id).disabled = !ok);
 
-  const u = $("url").value.trim(), chk = checkUrl(u), box = $("urlMsg");
+  const u = state.sel ? state.sel.url : "", chk = checkUrl(u), box = $("urlMsg");
   box.replaceChildren();
-  if (chk.msg) { const m = document.createElement("div"); m.className = `msg ${chk.level}`; m.textContent = chk.msg; box.append(m); }
+  if (state.sel && chk.msg) { const m = document.createElement("div"); m.className = `msg ${chk.level}`; m.textContent = chk.msg; box.append(m); }
   const a = $("openUrl"); a.hidden = !(u && chk.ok); if (!a.hidden) a.href = u;
 }
 
@@ -364,7 +331,7 @@ function svgString() {
   const { svg } = buildDesign();
   return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
 }
-function fileBase() { return `QR-GoogleMaps_${slug($("name").value)}_${state.tpl}`; }
+function fileBase() { return `QR-GoogleMaps_${slug(state.sel ? state.sel.name : "")}_${state.tpl}`; }
 function download(blob, filename) {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = filename;
@@ -398,20 +365,15 @@ function fillBranches() {
   const list = state.data.filter(b => !reg || b.region === reg).sort((a, b) => a.name.localeCompare(b.name, "vi"));
   const sel = $("branch");
   const opts = [new Option(`— Chọn chi nhánh / PGD (${list.length}) —`, "")];
-  for (const b of list) opts.push(new Option(reg ? b.name : `${b.name} · ${b.region}`, String(b.id)));
-  opts.push(new Option("✎ Tự điền thông tin khác", "custom"));
+  for (const b of list) opts.push(new Option((reg ? b.name : `${b.name} · ${b.region}`) + (b.url ? "" : " (chưa có link)"), String(b.id)));
   sel.replaceChildren(...opts);
 }
 function pickBranch() {
   const v = $("branch").value;
-  if (v === "custom") {
-    $("name").value = ""; $("addr").value = ""; $("url").value = "";
-    $("name").focus();
-  } else if (v) {
+  state.sel = null;
+  if (v) {
     const b = state.data.find(x => String(x.id) === v);
-    $("name").value = displayName(b.name);
-    $("addr").value = b.address || "";
-    $("url").value = b.url || "";
+    state.sel = { name: displayName(b.name), addr: b.address || "", url: b.url || "" };
     if (!$("region").value) { $("region").value = b.region; fillBranches(); $("branch").value = v; }
   }
   render();
@@ -438,20 +400,19 @@ function buildTemplatePicker() {
   }
 }
 
-/** Logo mặc định: đọc assets/logo.png thành data URL để nhúng được vào SVG/PNG khi xuất file. */
-async function loadDefaultLogo() {
+/** Logo HDBank: đọc assets/logo.png thành data URL để nhúng được vào SVG/PNG khi xuất file. */
+async function loadLogo() {
   try {
     const blob = await (await fetch("assets/logo.png")).blob();
     const url = await new Promise((ok, fail) => { const rd = new FileReader(); rd.onload = () => ok(rd.result); rd.onerror = fail; rd.readAsDataURL(blob); });
     const im = new Image(); im.src = url; await im.decode();
-    state.defaultLogo = url; state.defaultRatio = im.naturalWidth / im.naturalHeight;
-    if (!state.logo) { state.logo = url; state.logoRatio = state.defaultRatio; }
+    state.logo = url; state.logoRatio = im.naturalWidth / im.naturalHeight;
   } catch (e) { console.error(e); }
 }
 
 async function boot() {
   buildTemplatePicker();
-  await loadDefaultLogo();
+  await loadLogo();
   try {
     const res = await fetch("branches.json", { cache: "no-cache" });
     state.data = (await res.json()).branches;
@@ -459,22 +420,8 @@ async function boot() {
   const regions = [...new Set(state.data.map(b => b.region).filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
   $("region").append(...regions.map(r => new Option(r, r)));
   fillBranches();
-  $("region").addEventListener("change", () => { fillBranches(); render(); });
+  $("region").addEventListener("change", () => { fillBranches(); state.sel = null; render(); });
   $("branch").addEventListener("change", pickBranch);
-  for (const id of ["name", "addr", "url", "ctaCustom"]) $(id).addEventListener("input", render);
-  $("showAddr").addEventListener("change", render);
-  $("ctaPreset").addEventListener("change", () => { $("ctaCustom").hidden = $("ctaPreset").value !== "custom"; render(); });
-  $("logo").addEventListener("change", (e) => {
-    const f = e.target.files[0]; if (!f) return;
-    const rd = new FileReader();
-    rd.onload = () => {
-      const im = new Image();
-      im.onload = () => { state.logo = rd.result; state.logoRatio = (im.naturalWidth || 4) / (im.naturalHeight || 1); $("clearLogo").hidden = false; render(); };
-      im.src = rd.result;
-    };
-    rd.readAsDataURL(f);
-  });
-  $("clearLogo").addEventListener("click", (e) => { e.preventDefault(); state.logo = state.defaultLogo; state.logoRatio = state.defaultRatio; $("logo").value = ""; $("clearLogo").hidden = true; render(); });
   let t; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(render, 120); });
   render();
 }
