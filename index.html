@@ -114,13 +114,13 @@ const GRAY = "#58595b", GRAY10 = "#eeeeef";
 /* Mẫu thiết kế = ảnh nền có sẵn. box = ô vuông trắng giữa ảnh (chỗ đặt mã QR), bar = thanh đỏ (chỗ ghi tên đơn vị).
    Toạ độ tính theo pixel của ảnh nền gốc; out = kích thước file xuất; mm = khổ trang PDF. */
 const TEMPLATES = {
-  a5:    { label: "Standee A5", size: "148 × 210 mm", bg: "assets/bg-a5.jpg", out: [1748, 2480], mm: [148, 210],
-           box: { x: 265, y: 571, s: 596 }, bar: { x: 200, y: 1362, w: 727, h: 66 } },
+  tent:  { label: "Table tent A5/A6", size: "A5 148 × 210 · A6 105 × 148 mm", bg: "assets/bg-tent.jpg", out: [1748, 2480], mm: [148, 210],
+           box: { x: 413, y: 885, s: 922 }, bar: { x: 311, y: 2113, w: 1127, h: 100 } },
   story: { label: "Màn hình dọc 9:16", size: "1080 × 1920 px", bg: "assets/bg-916.jpg", out: [1080, 1920], mm: [91.44, 162.56],
-           box: { x: 160, y: 569, s: 580 }, bar: { x: 85, y: 1341, w: 729, h: 65 } },
+           box: { x: 160, y: 569, s: 581 }, bar: { x: 88, y: 1342, w: 725, h: 64 } },
 };
 
-const state = { data: [], tpl: "a5", sel: null, bg: {} }; // sel = địa điểm đang chọn trong danh sách; bg = ảnh nền đã tải
+const state = { data: [], tpl: "tent", sel: null, bg: {} }; // sel = địa điểm đang chọn trong danh sách; bg = ảnh nền đã tải
 
 /* ---------------- tiện ích ---------------- */
 function norm(t) { return (t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase(); }
