@@ -41,7 +41,6 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--red); outli
 .tpl { border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; cursor: pointer; background: var(--field); font: inherit; color: var(--ink); }
 .tpl[aria-pressed="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; background: var(--red-10); font-weight: 700; color: var(--red); }
 .tpl img { display: block; height: 96px; width: auto; margin: 2px auto 8px; border-radius: 4px; box-shadow: 0 1px 4px rgba(88,89,91,.3); }
-.tpl small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
 .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 .preview { position: sticky; top: 12px; }
 .stage { background: var(--panel); box-shadow: var(--shadow); border-radius: 12px; padding: 24px; display: grid; place-items: center; min-height: 420px; }
@@ -280,7 +279,6 @@ function buildTemplatePicker() {
     b.type = "button"; b.className = "tpl"; b.setAttribute("aria-pressed", String(key === state.tpl));
     const im = document.createElement("img"); im.src = T.bg; im.alt = "";
     b.append(im, document.createTextNode(T.label));
-    const sm = document.createElement("small"); sm.textContent = T.size; b.append(sm);
     b.addEventListener("click", () => {
       state.tpl = key;
       box.querySelectorAll(".tpl").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
