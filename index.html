@@ -324,10 +324,10 @@ const GRAY = "#58595b", GRAY10 = "#eeeeef";
    Toạ độ tính theo pixel của ảnh nền gốc; out = kích thước file xuất; mm = khổ trang PDF. */
 const TEMPLATES = {
   tent:  { label: "Table tent A5/A6", size: "A5 148 × 210 · A6 105 × 148 mm", bg: "assets/bg-tent.jpg", out: [1748, 2480], mm: [148, 210],
-           box: { x: 413, y: 885, s: 922 }, bar: { x: 311, y: 2113, w: 1127, h: 100 },
+           box: { x: 410, y: 883, s: 927 }, bar: { x: 312, y: 2111, w: 1125, h: 102 },
            specs: ["Standee để bàn", "A5 148 × 210 mm", "A6 105 × 148 mm"] },
   story: { label: "Màn hình dọc 9:16", size: "1080 × 1920 px", bg: "assets/bg-916.jpg", out: [1080, 1920], mm: [91.44, 162.56],
-           box: { x: 160, y: 569, s: 581 }, bar: { x: 88, y: 1342, w: 725, h: 64 },
+           box: { x: 204, y: 697, s: 673 }, bar: { x: 104, y: 1611, w: 873, h: 79 },
            specs: ["Màn hình dọc", "1080 × 1920 px", "Tỉ lệ 9:16"] },
 };
 
@@ -366,13 +366,13 @@ function drawDesign(cv) {
   const kx = W / bg.naturalWidth, ky = H / bg.naturalHeight;
   const url = state.sel ? state.sel.url : "", chk = checkUrl(url);
 
-  // ---- mã QR: căn giữa ô trắng, chừa lề trắng 4 ô mã, mỗi ô mã là số pixel nguyên để in sắc nét
+  // ---- mã QR: căn giữa ô trắng, chừa lề trắng 4 ô mã, mỗi ô mã là số pixel nguyên để in sắc nét.
+  //      Không tô thêm nền trắng: ô vốn đã trắng, tô thêm sẽ đè lên linh vật đứng chồng ở 2 góc dưới ô.
   const S = Math.min(T.box.s * kx, T.box.s * ky), bx = T.box.x * kx, by = T.box.y * ky;
   if (chk.ok) {
     const qr = qrcode(0, "M"); qr.addData(url); qr.make();
     const n = qr.getModuleCount(), cell = Math.floor(S / (n + 8)), size = cell * n;
     const x0 = Math.round(bx + (S - size) / 2), y0 = Math.round(by + (S - size) / 2);
-    ctx.fillStyle = "#ffffff"; ctx.fillRect(x0 - cell * 4, y0 - cell * 4, size + cell * 8, size + cell * 8);
     ctx.fillStyle = "#000000";
     for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) ctx.fillRect(x0 + c * cell, y0 + r * cell, cell, cell);
   } else {
