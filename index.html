@@ -223,13 +223,12 @@ select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px va
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="/" aria-label="HDB Digital Hub, về trang chủ">
+    <div class="brand"> <!-- logo không gắn link về trang chủ -->
       <!-- Logo gốc của HDBank, không vẽ lại / chỉnh sửa -->
       <img class="brand-logo" src="assets/logo.png" alt="HDBank" width="113" height="30">
       <span class="brand-name">Digital Hub</span>
-    </a>
+    </div>
     <nav class="nav" aria-label="Công cụ">
-      <a href="/ggmap-dashboard/">Đánh giá <span class="long">Google Maps</span></a>
       <a href="/ggmap-qrcode/" aria-current="page">Tạo mã QR</a>
     </nav>
   </div>
@@ -325,7 +324,7 @@ const GRAY = "#58595b", GRAY10 = "#eeeeef";
 const TEMPLATES = {
   tent:  { label: "Table tent A5/A6", size: "A5 148 × 210 · A6 105 × 148 mm", bg: "assets/bg-tent.jpg", out: [1748, 2480], mm: [148, 210],
            box: { x: 410, y: 883, s: 927 }, bar: { x: 312, y: 2111, w: 1125, h: 102 },
-           specs: ["Standee để bàn", "A5 148 × 210 mm", "A6 105 × 148 mm"] },
+           specs: ["A5 148 × 210 mm", "A6 105 × 148 mm"] },
   story: { label: "Màn hình dọc 9:16", size: "1080 × 1920 px", bg: "assets/bg-916.jpg", out: [1080, 1920], mm: [91.44, 162.56],
            box: { x: 204, y: 697, s: 673 }, bar: { x: 104, y: 1611, w: 873, h: 79 },
            specs: ["Màn hình dọc", "1080 × 1920 px", "Tỉ lệ 9:16"] },
