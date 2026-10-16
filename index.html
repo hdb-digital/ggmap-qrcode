@@ -183,6 +183,25 @@ select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px va
 .footer-band { height: 8px; background: var(--band-lr); }
 
 /* =========================================================
+   MỞ TRONG ZALO: trình duyệt của Zalo không tải được file (link blob:) và báo "Không tìm thấy ứng dụng",
+   nên hiện hướng dẫn mở bằng trình duyệt, và cho lưu PNG bằng cách nhấn giữ ảnh
+   ========================================================= */
+.inapp { background: var(--yellow-20); border-bottom: 1px solid var(--amber); font-size: 14.5px; }
+.inapp-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 12px; }
+.inapp p { flex: 1 1 280px; }
+.inapp .btn, .sheet .btn { min-height: 44px; padding: 0 18px; font-size: 15px; text-decoration: none; }
+.sheet { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 50; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(30,30,32,.72); }
+.sheet-box { width: min(100%, 460px); display: grid; gap: 12px; padding: 18px 18px 20px; border-radius: 24px; background: var(--white); box-shadow: var(--lift); }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sheet-head h2 { font-size: 19px; }
+.sheet-x { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--grey-10); color: var(--grey); font: 700 24px/1 var(--font-body); cursor: pointer; }
+.sheet-lead { font-size: 15px; }
+.sheet-img { display: block; max-width: 100%; max-height: 58vh; width: auto; height: auto; margin: 0 auto; -webkit-touch-callout: default; user-select: auto; -webkit-user-select: auto;
+  box-shadow: 0 1px 2px rgba(88,89,91,.15), 0 10px 24px -10px rgba(88,89,91,.45); }
+.sheet-note { font-size: 13.5px; color: var(--muted); }
+body.locked { overflow: hidden; }
+
+/* =========================================================
    RESPONSIVE: điện thoại xếp theo thứ tự chọn địa điểm & mẫu → xem trước → tải file
    ========================================================= */
 @media (max-width: 900px) {
@@ -233,6 +252,13 @@ select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px va
     </nav>
   </div>
 </header>
+
+<div class="inapp" id="inapp" role="note" hidden>
+  <div class="wrap inapp-inner">
+    <p><strong>Bạn đang mở trang trong Zalo.</strong> Zalo không tải được file: để lưu PNG, nhấn “Tải PNG để in” rồi nhấn giữ ảnh; để tải PDF, nhấn <b>⋯</b> ở góc trên bên phải và chọn mở bằng trình duyệt.</p>
+    <a class="btn btn-red to-chrome" hidden>Mở bằng Chrome</a>
+  </div>
+</div>
 
 <section class="hero" aria-labelledby="page-title">
   <div class="wrap hero-inner">
@@ -312,6 +338,19 @@ select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px va
   </div>
   <div class="footer-band" aria-hidden="true"></div>
 </footer>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet-box">
+    <div class="sheet-head">
+      <h2 id="sheetTitle"></h2>
+      <button class="sheet-x" id="sheetClose" type="button" aria-label="Đóng">×</button>
+    </div>
+    <p class="sheet-lead" id="sheetLead"></p>
+    <img class="sheet-img" id="sheetImg" alt="" hidden>
+    <p class="sheet-note" id="sheetNote">Chưa được? Nhấn <b>⋯</b> ở góc trên bên phải Zalo, chọn mở bằng trình duyệt rồi tải lại.</p>
+    <a class="btn btn-red to-chrome" hidden>Mở bằng Chrome</a>
+  </div>
+</div>
 
 <script src="qrcode.min.js"></script>
 <script>
@@ -460,12 +499,43 @@ async function pdfBlob(cv, wMm, hMm) {
 }
 $("dlPng").addEventListener("click", async () => {
   const cv = await renderCanvas();
+  if (IN_ZALO) {
+    const T = TEMPLATES[state.tpl];
+    return openSheet("Lưu ảnh để in", `Nhấn giữ vào ảnh rồi chọn “Lưu ảnh”. Ảnh lưu về đủ chất lượng in (${T.out[0]} × ${T.out[1]} px).`, cv.toDataURL("image/png"));
+  }
   cv.toBlob(b => download(b, fileBase() + ".png"), "image/png");
 });
 $("dlPdf").addEventListener("click", async () => {
+  if (IN_ZALO) return openSheet("Tải PDF bằng trình duyệt", "Zalo không tải được file PDF. Hãy mở trang này bằng trình duyệt (Chrome, Safari) rồi nhấn “Tải PDF” lại.");
   const T = TEMPLATES[state.tpl];
   download(await pdfBlob(await renderCanvas(), T.mm[0], T.mm[1]), fileBase() + ".pdf");
 });
+
+/* ---------------- mở trong Zalo ---------------- */
+// Trình duyệt trong Zalo (Android lẫn iPhone) không tải được file tạo trên trang và báo "Không tìm thấy ứng dụng".
+const IN_ZALO = /Zalo/i.test(navigator.userAgent), IS_ANDROID = /Android/i.test(navigator.userAgent);
+let lastFocus = null;
+function openSheet(title, lead, img) {
+  $("sheetTitle").textContent = title; $("sheetLead").textContent = lead;
+  const im = $("sheetImg"); im.hidden = $("sheetNote").hidden = !img; im.alt = img ? "Ấn phẩm mã QR, nhấn giữ để lưu" : ""; if (img) im.src = img; else im.removeAttribute("src");
+  lastFocus = document.activeElement;
+  $("sheet").hidden = false; document.body.classList.add("locked"); $("sheetClose").focus();
+}
+function closeSheet() {
+  $("sheet").hidden = true; document.body.classList.remove("locked"); $("sheetImg").removeAttribute("src");
+  if (lastFocus) lastFocus.focus();
+}
+$("sheetClose").addEventListener("click", closeSheet);
+$("sheet").addEventListener("click", e => { if (e.target === $("sheet")) closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("sheet").hidden) closeSheet(); });
+if (IN_ZALO) {
+  $("inapp").hidden = false;
+  document.querySelector(".hint").textContent = "Trong Zalo: nhấn “Tải PNG để in” rồi nhấn giữ ảnh để lưu. Quét mã QR để kiểm tra trước khi in.";
+  if (IS_ANDROID) { // Android: mở thẳng trang này bằng Chrome. iPhone không có cách tự mở Safari từ Zalo.
+    const href = `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=${location.protocol.slice(0, -1)};package=com.android.chrome;end`;
+    document.querySelectorAll(".to-chrome").forEach(a => { a.href = href; a.hidden = false; });
+  }
+}
 
 /* ---------------- điều khiển ---------------- */
 function fillBranches() {
