@@ -184,7 +184,7 @@ select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px va
 
 /* =========================================================
    MỞ TRONG ZALO: trình duyệt của Zalo không tải được file (link blob:) và báo "Không tìm thấy ứng dụng",
-   nên vừa vào trang là hiện pop-up hướng dẫn mở bằng trình duyệt (nhấn giữ ảnh để lưu cũng không được trong Zalo)
+   nên vừa vào trang là hiện pop-up hướng dẫn mở bằng trình duyệt
    ========================================================= */
 .inapp { background: var(--yellow-20); border-bottom: 1px solid var(--amber); font-size: 14.5px; }
 .inapp-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 12px; }
@@ -257,7 +257,7 @@ body.locked { overflow: hidden; }
 
 <div class="inapp" id="inapp" role="note" hidden>
   <div class="wrap inapp-inner">
-    <p><strong>Bạn đang mở trang trong Zalo.</strong> Zalo không tải được file PNG, PDF: nhấn <b>⋯</b> ở góc trên bên phải và chọn mở bằng trình duyệt.</p>
+    <p><strong>Bạn đang mở trang trong Zalo.</strong> Hãy nhấn <b>⋯</b> ở góc trên bên phải và chọn mở bằng trình duyệt để sử dụng trang.</p>
     <a class="btn btn-red to-chrome" hidden>Mở bằng Chrome</a>
   </div>
 </div>
@@ -344,14 +344,13 @@ body.locked { overflow: hidden; }
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
   <div class="sheet-box" tabindex="-1">
     <div class="sheet-head">
-      <h2 id="sheetTitle">Mở bằng trình duyệt để tải file</h2>
+      <h2 id="sheetTitle">Hãy mở trang bằng trình duyệt</h2>
       <button class="sheet-x" id="sheetClose" type="button" aria-label="Đóng">×</button>
     </div>
-    <p class="sheet-lead">Bạn đang mở trang trong Zalo. Zalo không tải được file PNG, PDF, hãy mở trang bằng trình duyệt (Chrome, Safari):</p>
+    <p class="sheet-lead">Bạn đang mở trang trong Zalo. Để sử dụng trang, hãy mở bằng trình duyệt (Chrome, Safari):</p>
     <ol class="sheet-steps">
       <li>Nhấn nút <b>⋯</b> ở góc trên bên phải màn hình.</li>
       <li>Chọn <b>Mở bằng trình duyệt</b>.</li>
-      <li>Chọn chi nhánh / PGD, mẫu thiết kế rồi tải file như bình thường.</li>
     </ol>
     <div class="sheet-btns">
       <a class="btn btn-red to-chrome" hidden>Mở bằng Chrome</a>
@@ -519,7 +518,7 @@ $("dlPdf").addEventListener("click", async () => {
 
 /* ---------------- mở trong Zalo ---------------- */
 // Trình duyệt trong Zalo (Android lẫn iPhone) không tải được file tạo trên trang và báo "Không tìm thấy ứng dụng";
-// nhấn giữ ảnh để lưu cũng không được. Vì vậy vừa vào trang là hiện pop-up hướng dẫn mở bằng trình duyệt.
+// vừa vào trang (và khi bấm tải file) là hiện pop-up hướng dẫn mở bằng trình duyệt.
 const IN_ZALO = /Zalo/i.test(navigator.userAgent), IS_ANDROID = /Android/i.test(navigator.userAgent);
 let lastFocus = null;
 function openSheet() {
@@ -550,7 +549,6 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("sheet"
 $("copyLink").addEventListener("click", copyLink);
 if (IN_ZALO) {
   $("inapp").hidden = false;
-  document.querySelector(".hint").textContent = "Trong Zalo không tải được file: hãy mở trang bằng trình duyệt. Quét mã QR để kiểm tra trước khi in.";
   if (IS_ANDROID) { // Android: mở thẳng trang này bằng Chrome. iPhone không có cách tự mở Safari từ Zalo.
     const href = `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=${location.protocol.slice(0, -1)};package=com.android.chrome;end`;
     document.querySelectorAll(".to-chrome").forEach(a => { a.href = href; a.hidden = false; });
