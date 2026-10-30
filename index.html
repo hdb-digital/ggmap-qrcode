@@ -3,230 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HDBank · Tạo mã QR Google Maps</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#da2128">
-<link rel="icon" type="image/png" href="assets/favicon.png">
+<title>Tạo mã QR Google Maps · HDB Digital Hub</title>
+<link rel="icon" type="image/png" href="https://hdb-digital.cloud/assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Font giao diện: BauhausVO (tiêu đề) và Myriad Pro (nội dung). Máy chưa cài font gốc sẽ dùng Quicksand và Source Sans 3.
-     Source Sans 3 đậm (700) còn được dùng để in tên đơn vị lên ấn phẩm, nên cần giữ trong link này. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<!-- Source Sans 3 đậm (700) còn được dùng để in tên đơn vị lên ấn phẩm, nên cần giữ trong link này. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://hdb-digital.cloud/assets/hdb-ui.css?v=1.2">
 <style>
-/* =========================================================
-   TOKENS — HDBank Digital Playbook (2.a–2.j), đồng bộ với Digital Hub, Dashboard đánh giá và Tạo bảng tên
-   ========================================================= */
-:root {
-  color-scheme: light;
-  --red: #DA2128; --grey: #58595B; --orange: #FAA61A; --amber: #FFC20E; --yellow: #FFDD00;
-  --red-10: #FBE9EA; --red-20: #F8D3D4;
-  --grey-10: #EEEEEF; --grey-20: #DEDEDE; --grey-30: #CDCDCE; --grey-50: #ACACAD; --grey-60: #9B9B9D;
-  --orange-10: #FEF6E9; --yellow-20: #FFF8CC;
-  --white: #FFFFFF;
-  --muted: #77787A;
+/* Chỉ CSS riêng của trang này (thành phần chưa có trong hdb-ui.css) */
 
-  --font-head: "BauhausVO", "Quicksand", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Myriad Pro", "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+/* Câu mô tả ở hero nằm trọn 1 dòng trên máy tính (44em của hdb-ui.css làm rơi chữ "để in." xuống dòng) */
+.hero-lead.is-wide { max-width: 46em; }
 
-  --kv-band: linear-gradient(0deg, var(--amber) 0%, var(--orange) 7%, var(--red) 26%, var(--red) 100%);
-  --band-lr: linear-gradient(90deg, var(--orange) 0%, var(--red) 100%);
-  --icon-bg: linear-gradient(0deg, var(--amber) 0%, var(--orange) 24%, var(--red) 68%);
-
-  --lift: 0 1px 2px rgba(88,89,91,.10), 0 10px 24px -12px rgba(88,89,91,.30), 0 36px 72px -32px rgba(110,10,16,.35);
-
-  --wrap: 1240px;
-  --gutter: clamp(16px, 3vw, 32px);
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--grey-10); color: var(--grey); font: 16px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
-h1, h2, h3 { font-family: var(--font-head); font-weight: 700; line-height: 1.2; margin: 0; color: var(--grey); }
-p { margin: 0; }
-a { color: var(--red); }
-[hidden] { display: none !important; }
-:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; border-radius: 6px; }
-.wrap { max-width: var(--wrap); margin: 0 auto; padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)); }
-.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
-
-/* ---------- Nút ---------- */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 20px;
-  border-radius: 999px; border: 2px solid transparent; font: 700 17px/1 var(--font-body); cursor: pointer;
-  transition: background-color .2s, box-shadow .2s, transform .2s;
-}
-.btn svg { width: 20px; height: 20px; flex: none; }
-.btn-red { background: var(--red); color: var(--white); }
-.btn-red:hover:not(:disabled) { box-shadow: 0 12px 22px -10px rgba(218,33,40,.75); transform: translateY(-1px); }
-.btn-outline { border-color: var(--red); color: var(--red); background: var(--white); }
-.btn-outline:hover:not(:disabled) { background: var(--red-10); }
-.btn-red:disabled { background: var(--red-20); cursor: not-allowed; }
-.btn-outline:disabled { border-color: var(--red-20); color: var(--red-20); cursor: not-allowed; }
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-.site-header { background: var(--white); }
-.header-inner { display: flex; align-items: center; gap: 20px; min-height: 72px; }
-.brand { display: flex; align-items: center; gap: 16px; text-decoration: none; flex: none; padding-block: 14px; }
-.brand-logo { display: block; height: 34px; width: auto; min-width: 55px; } /* logo gốc, vùng an toàn ≈ chiều cao chữ H */
-.brand-name { font: 700 16px/1.1 var(--font-head); color: var(--grey); white-space: nowrap; padding-left: 16px; border-left: 1px solid var(--grey-20); }
-.nav { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
-.nav::-webkit-scrollbar { display: none; }
-.nav a { white-space: nowrap; text-decoration: none; color: var(--grey); font-weight: 600; font-size: 15px; padding: 9px 14px; border-radius: 999px; transition: color .2s, background-color .2s; }
-.nav a:hover { color: var(--red); background: var(--red-10); }
-.nav a[aria-current="page"] { color: var(--red); background: var(--red-10); }
-
-/* =========================================================
-   HERO — nền đỏ + chân KV, đồ họa cánh diều đôi gốc (assets/kite.jpg)
-   ========================================================= */
-.hero { position: relative; overflow: hidden; isolation: isolate; color: var(--white); background: var(--kv-band); }
-.hero::after {
-  content: ""; position: absolute; z-index: -1; top: 0; right: 0; bottom: 0; width: min(56%, 760px);
-  background: url("assets/kite.jpg") left top / cover no-repeat;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 50%); mask-image: linear-gradient(90deg, transparent 0%, #000 50%);
-}
-.hero-inner { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px 24px; align-items: start; padding-block: 40px 104px; }
-.icon1 { --s: 68px; width: var(--s); height: var(--s); border-radius: calc(var(--s) * .2237); flex: none; display: grid; place-items: center; background: var(--icon-bg); }
-.icon1 svg { width: 56%; height: 56%; fill: var(--white); }
-.hero .icon1 { box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 14px 28px -12px rgba(0,0,0,.45); }
-.hero h1 { color: var(--white); font-size: clamp(30px, 4vw, 46px); letter-spacing: -.01em; line-height: 1.08; }
-.hero-lead { margin-top: 10px; font-size: 18px; max-width: 46em; text-wrap: pretty; color: rgba(255,255,255,.95); } /* 46em: đủ để câu mô tả nằm trọn 1 dòng trên PC */
-.hero-meta { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.hero-meta li { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); }
-.hero-meta svg { width: 14px; height: 14px; fill: currentColor; }
-
-/* =========================================================
-   KHU LÀM VIỆC: các bước (trái) + xem trước (phải), nổi lên trên mép hero
-   ========================================================= */
-.layout {
-  position: relative; z-index: 2; margin-top: -64px;
-  display: grid; grid-template-columns: minmax(320px, 410px) minmax(0, 1fr); gap: 20px; align-items: start;
-  grid-template-areas: "a p" "b p"; grid-template-rows: auto 1fr;
-}
-.panel { background: var(--white); border-radius: 24px; box-shadow: var(--lift); min-width: 0; }
-.panel-a { grid-area: a; }
-.panel-b { grid-area: b; }
-.preview { grid-area: p; }
-
-/* ---- Các bước ---- */
-.form { padding: 24px 24px 22px; }
-.steps { list-style: none; margin: 0; padding: 0; }
-.step { position: relative; padding-left: 46px; padding-bottom: 24px; }
-.step:last-child { padding-bottom: 0; }
-.step:not(:last-child)::before { content: ""; position: absolute; left: 15px; top: 36px; bottom: 6px; width: 2px; background: var(--grey-20); border-radius: 2px; }
-.num { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--red); color: var(--white); font: 700 15px/1 var(--font-head); }
-.step-head { display: flex; align-items: center; min-height: 32px; margin-bottom: 12px; }
-.step-head h2 { font-size: 18px; }
-
-label.f { display: block; font-size: 14px; font-weight: 600; color: var(--muted); }
-label.f + label.f { margin-top: 12px; }
-select {
-  display: block; width: 100%; margin-top: 6px; font: 400 16px/1.3 var(--font-body); color: var(--grey); cursor: pointer;
-  border: 1.5px solid var(--grey-20); border-radius: 14px; padding: 12px 40px 12px 14px; appearance: none; -webkit-appearance: none;
-  background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 8l4.5 4.5L14.5 8' fill='none' stroke='%2358595B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 14px center / 16px no-repeat;
-  transition: border-color .2s, box-shadow .2s;
-}
-select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 4px var(--red-10); }
-.msg { font-size: 13.5px; border-radius: 12px; padding: 9px 12px; margin-top: 10px; }
-.msg.warn { background: var(--yellow-20); border-left: 4px solid var(--amber); }
-.msg.err { background: var(--red-10); border-left: 4px solid var(--red); }
+/* Link mở địa điểm trên Google Maps, dưới ô chọn chi nhánh */
 .open-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 14px; font-weight: 600; text-decoration: none; }
 .open-link svg { width: 13px; height: 13px; fill: currentColor; }
 .open-link:hover { text-decoration: underline; }
+/* Thông báo về link Google Maps cách ô chọn phía trên */
+.url-msgs:not(:empty) { margin-top: 8px; }
 
-/* Chọn mẫu */
-.tpls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.tpl {
-  position: relative; display: grid; justify-items: center; gap: 4px; padding: 14px 10px 12px; cursor: pointer; text-align: center;
-  font: 600 15px/1.25 var(--font-body); color: var(--grey); background: var(--grey-10);
-  border: 2px solid transparent; border-radius: 18px; transition: border-color .2s, background-color .2s;
-}
-.tpl:hover { border-color: var(--grey-30); }
-.tpl img { display: block; height: 118px; width: auto; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 2px 8px rgba(88,89,91,.35); }
-.tpl small { font-size: 12.5px; font-weight: 400; color: var(--muted); }
-.tpl[aria-pressed="true"] { border-color: var(--red); background: var(--red-10); color: var(--red); }
-.tpl[aria-pressed="true"]::after { /* dấu chọn */
-  content: ""; position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%;
-  background: var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3.2 3.2L15 6.9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat;
-}
-
-/* Tải file */
-.btns { display: grid; gap: 10px; }
-.hint { font-size: 14px; color: var(--muted); margin-top: 12px; text-align: center; }
-
-/* ---- Xem trước ---- */
-.preview { position: sticky; top: 16px; padding: 22px 24px 20px; }
-.prev-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; }
-.prev-head h2 { font-size: 18px; }
-.tpl-chip { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: var(--red-10); color: var(--red); }
-.stage { position: relative; overflow: hidden; border-radius: 18px; background: var(--grey-10); padding: 28px; display: grid; place-items: center; min-height: 420px; }
-.stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: var(--band-lr); }
-.paper { background: #fff; line-height: 0; box-shadow: 0 1px 2px rgba(88,89,91,.15), 0 14px 36px -10px rgba(88,89,91,.45); }
-.paper canvas { display: block; width: 100%; height: auto; }
-.specs { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.specs li { font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: var(--grey-10); }
-.tips { list-style: none; margin: 16px 0 0; padding: 14px 0 0; border-top: 1px solid var(--grey-10); display: grid; gap: 6px; font-size: 14px; }
-.tips li { display: flex; gap: 10px; align-items: baseline; }
-.tips li::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--orange); flex: none; transform: translateY(-2px) rotate(45deg); }
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-.site-footer { background: var(--white); margin-top: 48px; }
-.footer-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; padding-block: 26px; font-size: 14px; }
-.footer-inner .brand-logo { height: 30px; }
-.footer-inner p { flex: 1 1 320px; color: var(--muted); }
-.footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; }
-.footer-links a { color: var(--grey); font-weight: 600; text-decoration: none; }
-.footer-links a:hover { color: var(--red); text-decoration: underline; }
-.footer-band { height: 8px; background: var(--band-lr); }
-
-/* =========================================================
-   MỞ TRONG ZALO: trình duyệt của Zalo không tải được file (link blob:) và báo "Không tìm thấy ứng dụng",
-   nên vừa vào trang là hiện pop-up hướng dẫn mở bằng trình duyệt
-   ========================================================= */
-.inapp { background: var(--yellow-20); border-bottom: 1px solid var(--amber); font-size: 14.5px; }
-.inapp-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 12px; }
-.inapp p { flex: 1 1 280px; }
-.inapp .btn, .sheet .btn { min-height: 44px; padding: 0 18px; font-size: 15px; text-decoration: none; }
-.sheet { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 50; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(30,30,32,.72); }
-.sheet-box:focus { outline: none; }
-.sheet-box { width: min(100%, 460px); display: grid; gap: 12px; padding: 18px 18px 20px; border-radius: 24px; background: var(--white); box-shadow: var(--lift); }
-.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.sheet-head h2 { font-size: 19px; }
-.sheet-x { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--grey-10); color: var(--grey); font: 700 24px/1 var(--font-body); cursor: pointer; }
+/* Chữ trong hộp thoại "mở bằng trình duyệt" khi vào từ Zalo */
 .sheet-lead { font-size: 15px; }
 .sheet-steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 15px; }
-.sheet-btns { display: grid; gap: 10px; margin-top: 4px; }
 .sheet-note { font-size: 13.5px; color: var(--muted); overflow-wrap: anywhere; }
 .sheet-note:empty { display: none; }
-body.locked { overflow: hidden; }
-
-/* =========================================================
-   RESPONSIVE: điện thoại xếp theo thứ tự chọn địa điểm & mẫu → xem trước → tải file
-   ========================================================= */
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; grid-template-areas: "a" "p" "b"; grid-template-rows: auto; margin-top: -56px; }
-  .preview { position: static; padding: 16px; }
-  .stage { padding: 16px; min-height: 0; }
-  .tips { display: none; }
-}
-@media (max-width: 760px) {
-  .header-inner { min-height: 60px; gap: 10px; }
-  .brand { gap: 10px; padding-block: 12px; }
-  .brand-logo { height: 26px; }
-  .brand-name { display: none; }
-  .nav a { padding: 7px 10px; font-size: 14px; }
-  .nav .long { display: none; }
-  .hero::after { width: 72%; opacity: .9; background-image: url("assets/kite-sm.jpg"); }
-  .hero-inner { grid-template-columns: 1fr; padding-block: 28px 84px; gap: 14px; }
-  .hero .icon1 { --s: 52px; }
-  .hero-lead { font-size: 16px; }
-  .form { padding: 20px 16px; }
-  .tpl img { height: 96px; }
-}
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 </style>
 </head>
 <body>
@@ -236,22 +39,20 @@ body.locked { overflow: hidden; }
     <path fill-rule="evenodd" d="M6 6h14v14H6zM9.5 9.5v7h7v-7zM11.5 11.5h3v3h-3zM28 6h14v14H28zM31.5 9.5v7h7v-7zM33.5 11.5h3v3h-3zM6 28h14v14H6zM9.5 31.5v7h7v-7zM11.5 33.5h3v3h-3z"/>
     <path d="M28 28h5v5h-5zM37 28h5v5h-5zM32.5 32.5h5v5h-5zM28 37h5v5h-5zM37 37h5v5h-5z"/>
   </symbol>
-  <symbol id="i-download" viewBox="0 0 24 24"><path d="M10.8 3h2.4v9.2l3.6-3.6 1.7 1.7L12 16.8l-6.5-6.5 1.7-1.7 3.6 3.6zM4 18.6h16V21H4z" fill="currentColor"/></symbol>
-  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12.5A1.5 1.5 0 0 1 18.5 22h-13A1.5 1.5 0 0 1 4 20.5v-17A1.5 1.5 0 0 1 5.5 2zm7 1.8V9h5.2zM8 13v2h8v-2zm0 4v2h6v-2z" fill="currentColor"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M10.8 3h2.4v9.2l3.6-3.6 1.7 1.7L12 16.8l-6.5-6.5 1.7-1.7 3.6 3.6zM4 18.6h16V21H4z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12.5A1.5 1.5 0 0 1 18.5 22h-13A1.5 1.5 0 0 1 4 20.5v-17A1.5 1.5 0 0 1 5.5 2zm7 1.8V9h5.2zM8 13v2h8v-2zm0 4v2h6v-2z"/></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 3h7v7h-2.4V7.1l-8.2 8.2-1.7-1.7 8.2-8.2H14zM5 5h6v2.4H7.4v9.2h9.2V13H19v6H5z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.4 5L12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 1 5 5v3h1.5A1.5 1.5 0 0 1 20 11.5v9A1.5 1.5 0 0 1 18.5 22h-13A1.5 1.5 0 0 1 4 20.5v-9A1.5 1.5 0 0 1 5.5 10H7V7a5 5 0 0 1 5-5zm0 2.3A2.7 2.7 0 0 0 9.3 7v3h5.4V7A2.7 2.7 0 0 0 12 4.3z"/></symbol>
 </svg>
 
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="/" aria-label="HDB Digital Hub, về trang chủ">
-      <!-- Logo gốc của HDBank, không vẽ lại / chỉnh sửa -->
-      <img class="brand-logo" src="assets/logo.png" alt="HDBank" width="113" height="30">
+      <img class="brand-logo" src="https://hdb-digital.cloud/assets/logo.png" alt="HDBank" width="113" height="30">
       <span class="brand-name">Digital Hub</span>
     </a>
-    <nav class="nav" aria-label="Công cụ">
-      <a href="/ggmap-qrcode/" aria-current="page">Tạo mã QR</a>
-    </nav>
+    <nav class="nav" data-hdb-nav aria-label="Công cụ"></nav>
   </div>
 </header>
 
@@ -264,10 +65,10 @@ body.locked { overflow: hidden; }
 
 <section class="hero" aria-labelledby="page-title">
   <div class="wrap hero-inner">
-    <span class="icon1" aria-hidden="true"><svg><use href="#g-qr"/></svg></span>
+    <span class="icon1 hero-icon" aria-hidden="true"><svg><use href="#g-qr"/></svg></span>
     <div>
       <h1 id="page-title">Tạo mã QR Google Maps</h1>
-      <p class="hero-lead">Tạo ấn phẩm mời khách hàng đánh giá đúng chi nhánh, phòng giao dịch trên Google Maps, sẵn sàng để in.</p>
+      <p class="hero-lead is-wide">Tạo ấn phẩm mời khách hàng đánh giá đúng chi nhánh, phòng giao dịch trên Google Maps, sẵn sàng để in.</p>
       <ul class="hero-meta">
         <li>Standee để bàn A5 / A6</li>
         <li>Màn hình dọc 9:16</li>
@@ -277,61 +78,69 @@ body.locked { overflow: hidden; }
   </div>
 </section>
 
-<main class="wrap layout">
-  <section class="panel form panel-a" aria-label="Chọn địa điểm và mẫu">
-    <ol class="steps">
-      <li class="step">
-        <span class="num" aria-hidden="true">1</span>
-        <div class="step-head"><h2>Chọn địa điểm</h2></div>
-        <label class="f">Vùng (tỉnh/thành phố)
-          <select id="region"><option value="">Tất cả vùng</option></select>
-        </label>
-        <label class="f">Chi nhánh / Phòng giao dịch
-          <select id="branch"></select>
-        </label>
-        <div id="urlMsg" aria-live="polite"></div>
-        <a class="open-link" id="openUrl" href="#" target="_blank" rel="noopener" hidden>Mở địa điểm trên Google Maps để kiểm tra<svg aria-hidden="true"><use href="#i-out"/></svg></a>
-      </li>
-      <li class="step">
-        <span class="num" aria-hidden="true">2</span>
-        <div class="step-head"><h2>Chọn mẫu thiết kế</h2></div>
-        <div class="tpls" id="tpls" role="group" aria-label="Mẫu thiết kế"></div>
-      </li>
-    </ol>
-  </section>
+<main class="wrap" id="main">
+  <div class="workspace">
+    <section class="panel ws-form" aria-label="Chọn địa điểm và mẫu">
+      <div class="panel-body">
+        <ol class="step-list">
+          <li class="step">
+            <span class="step-num" aria-hidden="true">1</span>
+            <div class="step-head"><h2>Chọn địa điểm</h2></div>
+            <div class="field">
+              <label for="region">Vùng (tỉnh/thành phố)</label>
+              <select id="region"><option value="">Tất cả vùng</option></select>
+            </div>
+            <div class="field">
+              <label for="branch">Chi nhánh / Phòng giao dịch</label>
+              <select id="branch"></select>
+            </div>
+            <div class="url-msgs" id="urlMsg" aria-live="polite"></div>
+            <a class="open-link" id="openUrl" href="#" target="_blank" rel="noopener" hidden>Mở địa điểm trên Google Maps để kiểm tra<svg aria-hidden="true"><use href="#i-out"/></svg></a>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">2</span>
+            <div class="step-head"><h2>Chọn mẫu thiết kế</h2></div>
+            <div class="choices" id="tpls" role="group" aria-label="Mẫu thiết kế"></div>
+          </li>
+        </ol>
+      </div>
+    </section>
 
-  <section class="panel preview" aria-labelledby="h-prev">
-    <div class="prev-head">
-      <h2 id="h-prev">Xem trước</h2>
-      <span class="tpl-chip" id="tplChip"></span>
-    </div>
-    <div class="stage"><div class="paper" id="paper"><canvas id="design" role="img" aria-label="Xem trước ấn phẩm mã QR"></canvas></div></div>
-    <ul class="specs" id="cap"></ul>
-    <ul class="tips">
-      <li>Mã QR dẫn tới trang Google Maps của đúng chi nhánh, PGD đã chọn.</li>
-      <li>Tên đơn vị tự thu nhỏ cho vừa một dòng trên thanh đỏ.</li>
-      <li>Quét thử mã bằng điện thoại trước khi in.</li>
-    </ul>
-  </section>
+    <section class="panel ws-preview" aria-labelledby="h-prev">
+      <div class="preview-head">
+        <h2 id="h-prev">Xem trước</h2>
+        <span class="badge no-dot is-red" id="tplChip"></span>
+      </div>
+      <div class="stage"><div class="paper" id="paper"><canvas id="design" role="img" aria-label="Xem trước ấn phẩm mã QR"></canvas></div></div>
+      <ul class="tags" id="cap"></ul>
+      <ul class="tips">
+        <li>Mã QR dẫn tới trang Google Maps của đúng chi nhánh, PGD đã chọn.</li>
+        <li>Tên đơn vị tự thu nhỏ cho vừa một dòng trên thanh đỏ.</li>
+        <li>Quét thử mã bằng điện thoại trước khi in.</li>
+      </ul>
+    </section>
 
-  <section class="panel form panel-b" aria-label="Tải file">
-    <ol class="steps">
-      <li class="step">
-        <span class="num" aria-hidden="true">3</span>
-        <div class="step-head"><h2>Tải file để in</h2></div>
-        <div class="btns">
-          <button class="btn btn-red" id="dlPng" type="button"><svg aria-hidden="true"><use href="#i-download"/></svg>Tải PNG để in</button>
-          <button class="btn btn-outline" id="dlPdf" type="button"><svg aria-hidden="true"><use href="#i-file"/></svg>Tải PDF</button>
-        </div>
-        <p class="hint">Vui lòng quét mã QR để kiểm tra trước khi in.</p>
-      </li>
-    </ol>
-  </section>
+    <section class="panel ws-actions" aria-label="Tải file">
+      <div class="panel-body">
+        <ol class="step-list">
+          <li class="step">
+            <span class="step-num" aria-hidden="true">3</span>
+            <div class="step-head"><h2>Tải file để in</h2></div>
+            <div class="btn-stack">
+              <button class="btn btn-red btn-lg" id="dlPng" type="button"><svg aria-hidden="true"><use href="#i-download"/></svg>Tải PNG để in</button>
+              <button class="btn btn-outline btn-lg" id="dlPdf" type="button"><svg aria-hidden="true"><use href="#i-file"/></svg>Tải PDF</button>
+            </div>
+            <p class="btn-note">Vui lòng quét mã QR để kiểm tra trước khi in.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </div>
 </main>
 
 <footer class="site-footer">
   <div class="wrap footer-inner">
-    <img class="brand-logo" src="assets/logo.png" alt="HDBank" width="113" height="30">
+    <img class="brand-logo" src="https://hdb-digital.cloud/assets/logo.png" alt="HDBank" width="113" height="30">
     <p>HDB Digital Hub là trang nội bộ của đội Digital Marketing HDBank.</p>
     <ul class="footer-links">
       <li>Hotline <a href="tel:19006060">1900 6060</a></li>
@@ -345,7 +154,7 @@ body.locked { overflow: hidden; }
   <div class="sheet-box" tabindex="-1">
     <div class="sheet-head">
       <h2 id="sheetTitle">Hãy mở trang bằng trình duyệt</h2>
-      <button class="sheet-x" id="sheetClose" type="button" aria-label="Đóng">×</button>
+      <button class="icon-btn is-filled" id="sheetClose" type="button" aria-label="Đóng"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
     </div>
     <p class="sheet-lead">Bạn đang mở trang trong Zalo. Để sử dụng trang, hãy mở bằng trình duyệt (Chrome, Safari):</p>
     <ol class="sheet-steps">
@@ -458,7 +267,7 @@ function render() {
 
   const u = state.sel ? state.sel.url : "", chk = checkUrl(u), box = $("urlMsg");
   box.replaceChildren();
-  if (state.sel && chk.msg) { const m = document.createElement("div"); m.className = `msg ${chk.level}`; m.textContent = chk.msg; box.append(m); }
+  if (state.sel && chk.msg) { const m = document.createElement("div"); m.className = `notice sm is-${chk.level}`; m.textContent = chk.msg; box.append(m); }
   const a = $("openUrl"); a.hidden = !(u && chk.ok); if (!a.hidden) a.href = u;
 }
 
@@ -523,10 +332,10 @@ const IN_ZALO = /Zalo/i.test(navigator.userAgent), IS_ANDROID = /Android/i.test(
 let lastFocus = null;
 function openSheet() {
   lastFocus = document.activeElement; $("copyMsg").textContent = "";
-  $("sheet").hidden = false; document.body.classList.add("locked"); $("sheet").firstElementChild.focus();
+  $("sheet").hidden = false; document.body.classList.add("has-sheet"); $("sheet").firstElementChild.focus();
 }
 function closeSheet() {
-  $("sheet").hidden = true; document.body.classList.remove("locked");
+  $("sheet").hidden = true; document.body.classList.remove("has-sheet");
   if (lastFocus && lastFocus !== document.body) lastFocus.focus();
 }
 /** Sao chép link trang để dán vào Chrome/Safari (dự phòng khi menu ⋯ của Zalo không có mục mở bằng trình duyệt). */
@@ -579,13 +388,13 @@ function buildTemplatePicker() {
   const box = $("tpls");
   for (const [key, T] of Object.entries(TEMPLATES)) {
     const b = document.createElement("button");
-    b.type = "button"; b.className = "tpl"; b.setAttribute("aria-pressed", String(key === state.tpl));
+    b.type = "button"; b.className = "choice"; b.setAttribute("aria-pressed", String(key === state.tpl));
     const im = document.createElement("img"); im.src = T.bg; im.alt = "";
     const sm = document.createElement("small"); sm.textContent = T.size;
     b.append(im, document.createTextNode(T.label), sm);
     b.addEventListener("click", () => {
       state.tpl = key;
-      box.querySelectorAll(".tpl").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      box.querySelectorAll(".choice").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
       render();
     });
     box.append(b);
@@ -611,5 +420,6 @@ async function boot() {
 }
 boot();
 </script>
+<script src="https://hdb-digital.cloud/assets/hdb-nav.js?v=1.2" defer></script>
 </body>
 </html>
